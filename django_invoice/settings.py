@@ -72,14 +72,16 @@ WSGI_APPLICATION = 'django_invoice.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'celem',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.environ.get('DJANGO_DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.environ.get('DJANGO_DB_NAME', 'celem'),  # Remplace 'mydb' par ton nom de base local
+        'USER': os.environ.get('DJANGO_DB_USER', 'postgres'),  # Remplace 'myuser'
+        'PASSWORD': os.environ.get('DJANGO_DB_PASSWORD', 'postgres'),  # Remplace 'mypassword'
+        'HOST': os.environ.get('DJANGO_DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DJANGO_DB_PORT', '5432'),
     }
 }
 
