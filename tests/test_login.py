@@ -29,7 +29,7 @@ class TestLoginPage(unittest.TestCase):
         password_field.send_keys(Keys.RETURN)
 
         # Attendre que la page suivante charge
-        time.sleep(2)
+        time.sleep(20)
 
         # Vérifier que l'utilisateur est redirigé vers la page d'ajout de facture
         self.assertEqual(self.driver.current_url, "http://127.0.0.1:8000/",

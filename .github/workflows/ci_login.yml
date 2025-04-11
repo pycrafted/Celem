@@ -1,0 +1,44 @@
+name: CI Pipeline pour Test Login
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Récupérer le code
+      - uses: actions/checkout@v3
+
+      # Configurer Python
+      - name: Configurer Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # Installer les dépendances
+      - name: Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install selenium webdriver-manager  # Ajout explicite si non dans requirements.txt
+
+      # Installer Chrome et Chromedriver
+      - name: Installer Chrome
+        uses: nanasess/setup-chromedriver@v2
+
+      # Appliquer les migrations et démarrer le serveur Django
+      - name: Démarrer le serveur Django
+        run: |
+          python manage.py migrate  # Préparer la base de données
+          python manage.py runserver &
+          sleep 10  # Attendre que le serveur soit prêt
+
+      # Exécuter le test de login
+      - name: Exécuter le test de login
+        run: |
+          python tests/test_login.py
