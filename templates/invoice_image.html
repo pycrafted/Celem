@@ -1,0 +1,65 @@
+{% extends "base_image.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+
+
+
+<div class="invoice-container">
+        <header class="invoice-header">
+            <div class="company-details">
+                <h2>LAVANDARIA PRESSING</h2>
+                <p>Téléphone (laverie) : 768155097</p>
+                <p>Téléphone (Samba) : 778354278</p>
+                <p>Le {{invoice.invoice_date_time}}</p>
+            </div>
+            <div class="invoice-title">
+                <h2>FACTURE</h2>
+                <p>Ticket N : {{invoice.reference}}</p>
+            </div>
+        </header>
+
+        <section class="client-info">
+            <div class="client-details">
+                <h2>Client : {{invoice.customer}}</h2>
+            </div>
+        </section>
+
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Désignation</th>
+                    <th>Prix Unitaire</th>
+                    <th>Quantité</th>
+                    <th>Montant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for invoice_service in services %}
+                <tr>
+                    <td>{{ invoice_service.service.proposition }}</td>
+                    <td>{{ invoice_service.prix }} FCFA</td>
+                    <td>{{ invoice_service.quantite }}</td>
+                    <td>{{ invoice_service.quantite|multiply:invoice_service.prix }} FCFA</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="invoice-summary">
+            <div class="total-box">
+                <h3>LIVRÉ : {% if invoice.delivered %}OUI{% else %}NON{% endif %}</h3>
+                <h3>PAYÉ : {% if invoice.balance == 0 %}OUI{% elif invoice.balance == invoice.total %}NON{% else %}EN COURS{% endif %}</h3>
+                 <h3>{% if invoice.balance != 0 and invoice.balance != invoice.total %}RESTANT A PAYER : {{ invoice.balance }} FCFA{% endif %}</h3>
+            </div>
+            <div class="balance-box">
+                <h3>Total : {{invoice.get_total}} FCFA</h3>
+            </div>
+        </div>
+        <br>
+        <footer class="invoice-footer">
+            <p>Merci de votre confiance ! Si vous avez des questions concernant cette facture, veuillez nous contacter à l'adresse ci-dessus.</p>
+        </footer>
+    </div>
+
+{% endblock %}

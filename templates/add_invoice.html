@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<form method="post" id="invoice-form">
+    {% csrf_token %}
+    <div class="conteneur-principal">
+        <!-- Contenu principal -->
+        <div class="section-contenu">
+            <div class="carte">
+                <!-- Informations du client -->
+                <div class="formulaire-ligne">
+                    <div class="formulaire-groupe" style="display: {% if not use_antidate %}none{% endif %}">
+                        <label for="invoice_date_time">Date</label>
+                        <input type="datetime-local" style="color: #333" name="invoice_date_time" class="form-control" id="invoice_date_time">
+                    </div>
+                    <div class="formulaire-groupe">
+                        <label for="customer">Client</label>
+                        <input type="text" id="customer" name="customer" class="form-control" placeholder="Nom et Prénom" required>
+                    </div>
+                    <div class="formulaire-groupe">
+                        <label for="telephone">Numéro de Téléphone</label>
+                        <input type="tel" id="telephone" name="telephone" class="form-control" placeholder="Téléphone">
+                    </div>
+                </div>
+            </div>
+
+            <div class="carte carte-large">
+
+                <div class="liste-article" id="services-container">
+                    <!-- Première ligne de service affichée automatiquement -->
+                    <div class="article-entrer">
+
+
+                        <select required name="service" class="form-control service-select select2" id="service-1" style="background-color:#fff" data-prix="{{ service.prix }">
+                            <option value="">Sélectionnez un service...</option>
+                            {% for service in services %}
+                                <option value="{{ service.id }}" data-prix="{{ service.prix }}">
+                                    {{ service.proposition }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <input type="number" name="quantite" id="quantite-1" class="form-control quantite-input" value="1" min="1" required>
+                        <input type="number" name="prix" id="prix_1" class="form-control prix-input" value="0" min="0">
+                        <button type="button" title="Supprimer la ligne" class="boutton-supprimer-article" style="border-radius:3px">
+                            <img src="{% static 'images/delete.png' %}" alt="Mail Icon" style="width: 24px; height: 24px;">
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="boutton-ajout-article" id="add-service-btn">+ Ajouter un service</button>
+            </div>
+
+            <div class="carte">
+                <div class="formulaire-ligne ligne-total">
+                    <label for="total" style="color: #fff; font-weight: bold;">TOTAL : </label>
+                    <input type="text" id="total" class="totalispy" name="total" style="font-weight: bold" value="0 FCFA" readonly>
+                </div>
+            </div>
+        </div>
+
+        <aside class="section-résumer">
+            <div class="formulaire-groupe groupe-ticket">
+                <label for="reference" class="ticket-label" style="color:#fff;font-weight: bold;">TICKET N°</label>
+                <input type="text" id="reference" name="reference" class="ticket-entrer form-control" style="background-color: #00FF00;border: 2px solid  #008000;font-weight: bold" value="{{ next_reference }}">
+            </div>
+
+            <div id="mode-paiement-options" class="options-paiement" style="margin: 15px 0;">
+                <label for="mode_paiement">Mode de Paiement</label>
+                <select id="mode_paiement" name="mode_paiement">
+                    <option value="">Sélectionnez...</option>
+                    <option value="cash" style="color:#228B22">Espèces</option>
+                    <option value="wave" style="color:#00c5f6">Wave</option>
+                    <option value="om" style="color:#f77601">Orange Money</option>
+                </select>
+
+                <label for="amount_paid">Montant Paiement</label>
+                <input type="number" id="amount_paid" name="amount_paid" min="0" value="0" step="0.01" class="form-control">
+                <div style="display: {% if not use_antidate %}none{% endif %}">
+                <label for="payment-date" >Date de Paiement</label>
+                <input type="datetime-local" id="payment-date" name="payment_date" class="form-control">
+                    </div>
+            </div>
+            <button class="boutton-soumission" type="submit" >Enregistrer</button>
+        </aside>
+    </div>
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const addServiceBtn = document.getElementById('add-service-btn');
+    const servicesContainer = document.getElementById('services-container');
+    const totalInput = document.getElementById('total');
+    let serviceCount = 1;
+
+    addServiceBtn.addEventListener('click', function() {
+        serviceCount += 1;
+
+        const newServiceRow = document.createElement('div');
+        newServiceRow.classList.add('article-entrer');
+        newServiceRow.innerHTML = `
+            <select required name="service" class="form-control service-select select2" id="service-${serviceCount}" style="background-color:#fff">
+                <option value="">Sélectionnez un service...</option>
+                {% for service in services %}
+                    <option value="{{ service.id }}" data-prix="{{ service.prix }}">
+                        {{ service.proposition }}
+                    </option>
+                {% endfor %}
+            </select>
+            <input type="number" name="quantite" id="quantite-${serviceCount}" class="form-control quantite-input" value="1" min="1" required>
+            <input type="number" name="prix" id="prix_${serviceCount}" class="form-control prix-input" value="0" min="0">
+            <button type="button" title="Supprimer la ligne" class="boutton-supprimer-article" style="border-radius:3px">
+                <img src="{% static 'images/delete.png' %}" alt="Delete Icon" style="width: 24px; height: 24px;">
+            </button>
+        `;
+
+        servicesContainer.appendChild(newServiceRow);
+
+        newServiceRow.querySelector('.boutton-supprimer-article').addEventListener('click', function() {
+            newServiceRow.remove();
+            updateTotal();
+        });
+
+        newServiceRow.querySelector('.service-select').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const prix = selectedOption.getAttribute('data-prix');
+            newServiceRow.querySelector('.prix-input').value = prix || 0;
+            updateTotal();
+        });
+
+        newServiceRow.querySelector('.quantite-input').addEventListener('input', updateTotal);
+        newServiceRow.querySelector('.prix-input').addEventListener('input', updateTotal);
+    });
+
+    function updateTotal() {
+        let total = 0;
+        servicesContainer.querySelectorAll('.article-entrer').forEach(row => {
+            const prix = parseFloat(row.querySelector('.prix-input').value) || 0;
+            const quantite = parseInt(row.querySelector('.quantite-input').value) || 0;
+            total += prix * quantite;
+        });
+        totalInput.value = total.toFixed(0) + ' FCFA';
+    }
+
+    // Ajout de l'écouteur d'événement pour le bouton de suppression de la première ligne
+    const firstServiceRow = document.querySelector('.article-entrer');
+    if (firstServiceRow) {
+        const deleteButton = firstServiceRow.querySelector('.boutton-supprimer-article');
+        deleteButton.addEventListener('click', function() {
+            firstServiceRow.remove();
+            updateTotal();
+        });
+
+        firstServiceRow.querySelector('.service-select').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const prix = selectedOption.getAttribute('data-prix');
+            firstServiceRow.querySelector('.prix-input').value = prix || 0;
+            updateTotal();
+        });
+
+        firstServiceRow.querySelector('.quantite-input').addEventListener('input', updateTotal);
+        firstServiceRow.querySelector('.prix-input').addEventListener('input', updateTotal);
+    }
+});
+
+</script>
+
+<script>
+
+
+// Initialisation de la première ligne de service
+window.addEventListener('load', function() {
+    document.querySelector('.service-select').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const prix = selectedOption.getAttribute('data-prix');
+        this.closest('.article-entrer').querySelector('.prix-input').value = prix;
+        updateTotal();
+    });
+
+    document.querySelector('.quantite-input').addEventListener('input', updateTotal);
+});
+    //écriture automatique dans selectionner un service
+    $(document).ready(function() {
+        // Activer Select2 sur le select avec la classe 'select2'
+        $('.select2').select2({
+            placeholder: "Sélectionnez un service...",
+            allowClear: true
+        });
+    });
+
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modePaiementSelect = document.getElementById('mode_paiement');
+        const amountPaidInput = document.getElementById('amount_paid');
+        const totalInput = document.getElementById('total');
+
+        modePaiementSelect.addEventListener('change', function () {
+            // Remplit le champ amount_paid avec le total lorsqu'un mode de paiement est sélectionné
+            if (modePaiementSelect.value) {
+                amountPaidInput.value = parseFloat(totalInput.value.replace(' FCFA', '') || '0');
+            } else {
+                amountPaidInput.value = '';
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const addServiceBtn = document.getElementById('add-service-btn');
+
+        // Ajouter une nouvelle ligne de service en appuyant sur la touche "flèche bas"
+        document.addEventListener('keydown', function (event) {
+            if (event.key === "ArrowDown") {  // "flèche bas"
+                event.preventDefault();  // Évite tout comportement par défaut si nécessaire
+                addServiceBtn.click();  // Simule un clic sur le bouton "Ajouter un service"
+            }
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        function updateTotal() {
+            let total = 0;
+            $('#wrapper .form-row').each(function() {
+                const serviceSelect = $(this).find('.service-select');
+                const quantityInput = $(this).find('.quantite-input');
+
+                const servicePrice = parseFloat(serviceSelect.find('option:selected').data('prix')) || 0;
+                const quantity = parseFloat(quantityInput.val()) || 0;
+
+                total += servicePrice * quantity;
+            });
+            $('#total').val(total.toFixed(0) + ' FCFA');
+        }
+
+        // Sauvegarder et imprimer après soumission du formulaire
+        $('form').on('submit', function(event) {
+            event.preventDefault();  // Empêcher l'envoi normal du formulaire
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        $('#invoice-customer').text(response.customer);
+                        $('#invoice-id').text(response.id);
+                        $('#invoice-total').text(response.total);
+                        $('#invoice-date').text(response.invoice_date_time);
+
+                        // Afficher l'état de paiement
+                        const etatPaiement = response.paid; // Use the value directly returned from Django
+                        $('#invoice-paid').text(`Payé: ${etatPaiement}`);
+
+                        // Afficher l'état de livraison
+                        const etatLivraison = response.delivered;
+                        $('#invoice-delivered').text(`Livré: ${etatLivraison}`);
+
+                        // Ajouter les services à la liste
+                        const servicesList = $('#invoice-services-list');
+                        servicesList.empty(); // Vider la liste précédente
+                        response.invoice_services.forEach(function(service) {
+                            servicesList.append(`<li>${service.service_name} - Quantité : ${service.quantite} - Prix : ${service.prix} FCFA</li>`);
+                        });
+
+                        // Afficher la boîte de dialogue d'impression
+                        let content = `<div>
+                            <style>
+                            body {
+                                font-family: 'Courier New', Courier, monospace;
+                                font-size: 15px;
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+
+                            .totals {
+                                border-top: 1px dashed black;
+                                padding-top: 5px;
+                                font-weight:bold;
+                            }
+
+                            .items {
+                                margin-bottom: 10px;
+                                font-weight:bold;
+                            }
+
+                            .totals p {
+                                display: flex;
+                                justify-content: space-between;
+                                margin: 5px 0;
+                                font-weight:bold;
+                            }
+
+                            .thanks {
+                                text-align: center;
+                                margin-top: 18px;
+                            }
+
+                            .ticket-number {
+                                border-bottom: 1px dashed black;
+                                padding-bottom: 10px;
+                                margin-bottom: 10px;
+                            }
+
+                            .instruction {
+                                margin-top: 10px;
+                                font-weight:bold;
+                            }
+
+                            .instruction p {
+                                margin: 2px 0;
+                                display: flex;
+                            }
+
+                            .receipt {
+                                width: 80mm;
+                                margin: 0 auto;
+                                padding: 10px;
+                                background-color: white;
+                            }
+
+                            .receipt-header h1 {
+                                font-size: 18px;
+                                margin: 0;
+                                border-top: 1px solid black;
+                                padding-top: 10px;
+                            }
+
+                            .receipt-header p {
+                                margin: 5px 0;
+                                font-weight:bold;
+                            }
+
+                            </style>
+                           <div class="receipt">
+                            <div class="receipt-header" style:"font-weight:bold;">
+                                <h1>LAVANDARIA PRESSING</h1>
+                                <p>LAVERIE PROFESSIONNELLE</p>
+                                <p>Cices Foire lot N°234</p>
+                                <p>Téléphone(laverie) : 768155097</p>
+                                <p>Téléphone(Samba) : 778354278</p>
+                                <p>Le ${response.invoice_date_time}</p>
+                                <p>Client : ${response.customer}</p>
+                                <p class="ticket-number" >Ticket N : ${response.reference}</p>
+                            </div>
+
+                            <div class="items">`;
+                            response.invoice_services.forEach(function(service) {
+                                let totalServicePrice = service.prix * service.quantite;
+
+                                content += `<div style="display: flex; justify-content: space-between;">
+                                                <span style="flex: 1; text-align: left;">${service.service_name}</span>
+                                                <span style="flex: 1; text-align: center;">${service.quantite}x${service.prix}</span>
+                                                <span style="flex: 1;text-align: center;">${totalServicePrice.toFixed(0)}<span style="visibility: hidden">****</span></span>
+                                            </div>`;
+                            });
+
+                            content += `
+                                    </div>
+
+                            <div class="totals" style="display: flex; justify-content: space-between;">
+                                <span style="flex: 1; text-align: left;"><strong>Total</strong> :</span>
+                                <span style="flex: 1; text-align: right;">${response.total} <span style="visibility: hidden">*****</span></span>
+                            </div>`;
+
+                            if (response.balance != 0 && response.balance != response.total) {
+                                content += `<div style="display: flex; justify-content: space-between;font-weight:bold;">
+                                                <span style="flex: 1; text-align: left;"><strong>Restant</strong> :</span>
+                                                <span style="flex: 1; text-align: right;">${response.balance} <span style="visibility: hidden">*****</span></span>
+                                            </div>`;
+                            }
+
+                            content += `
+                            <div class="totals">
+                                <p>Payé : ${etatPaiement}</p>
+                                <p style="display: {% if not use_delivery_confirmation %}none{% endif %};">Livré : ${etatLivraison}</p>
+                            </div>
+
+                            <div class="instruction" style="border-top: 1px dashed black; padding-bottom: 5px;">
+                                <p>[P] : Pressing</p>
+                                <p>[R] : Repassage</p>
+                                <p>[L] : Lavage</p>
+                                <p>[S] : Séchage</p>
+                            </div>
+
+
+                   </div>
+                            </div>`;
+
+                        // Calculer la position pour centrer la fenêtre
+                        const width = 600;
+                        const height = 800;
+                        const left = (window.innerWidth / 2) - (width / 2);
+                        const top = (window.innerHeight / 2) - (height / 2);
+
+                        let printWindow = window.open('', '', `width=${width},height=${height},top=${top},left=${left}`);
+                        printWindow.document.write(content);
+                        printWindow.document.close();
+                        printWindow.focus();
+                        printWindow.print();
+                        printWindow.close();
+                        window.location.reload();
+                    } else {
+                        alert('veuillez recharger la page.');
+                    }
+                },
+                error: function() {
+                    alert('Une erreur est survenue. Veuillez réessayer.');
+                }
+            });
+        });
+    });
+</script>
+
+
+{% endblock content %}

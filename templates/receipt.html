@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+
+<!-- Afficher les alertes -->
+        {% for message in messages %}
+            {% if 'sortie' in message.tags %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+    {% elif 'entrer' in message.tags %}
+        <div class="alert alert-info" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+    {% endfor %}
+
+        <!-- Formulaire de filtre de date aligné à droite -->
+    <div class="d-flex justify-content-center mb-3">
+        <form method="GET" action="{% url 'receipt' %}" class="form-inline" id="date-filter-form">
+            <div class="form-group">
+                <input type="date" id="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+        </form>
+    </div>
+<div class="receipt-tables">
+    <div class="bina row">
+        <div class="col-md-6 col-12 mb-3">
+            <div class="text-right mb-2">
+
+    <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#inputeModal" title="Enregistrer une nouvelle entrée">
+        <span class="material-icons-outlined">edit</span>
+    </button>
+
+                <div class="modal fade" id="inputeModal" tabindex="-1" role="dialog" aria-labelledby="inputeModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="inputeModalLabel">NOUVELLE ENTREE</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <form method="post">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                          {{ inpute_form.as_p }}
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                          <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+
+
+                </div>
+                <table class="table table-bordered table-hover custom-table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th colspan="4" scope="col" style="
+                        border-left: 1px solid #689D71 !important ;
+                        border-right: 1px solid #689D71 !important;
+                        border-bottom: 1px solid #fff !important; text-align:center;background-color:#689D71">ENTREES</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" style="border-right: 1px solid white !important; border-left: 1px solid #343A40 !important">REFERENCE</th>
+                        <th scope="col" style="border-right: 1px solid white !important;color:#689D71">ESPECE</th>
+                        <th scope="col" style="border-right: 1px solid white !important;color:#00c5f6">WAVE</th>
+                        <th scope="col" style="border-right: 1px solid #343A40 !important;;color:#f77601">OM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr><td><strong>RAN</strong></td><td>{{ previous_day_total }} FCFA</td><td></td><td></td></tr>
+                {% for inp in inputes_cash %}
+                <tr><td><strong>{{ inp.titres }}</strong></td><td style="color:#689D71">{{ inp.montants }} FCFA</td><td></td><td></td></tr>
+                {% endfor %}
+                {% for loop in inputes_wave %}
+                <tr><td><strong>{{ loop.titres }}</strong></td><td></td><td style="color:#00c5f6">{{ loop.montants }} FCFA</td><td></td></tr>
+                {% endfor %}
+                {% for lop in inputes_orange %}
+                <tr><td><strong>{{ lop.titres }}</strong></td><td></td><td></td><td style="color:#f77601">{{ lop.montants }} FCFA</td></tr>
+                {% endfor %}
+                    {% for payment in payments %}
+                    <tr>
+
+                        <td><strong>{{ payment.invoice.reference }}</strong></td>
+                        <td>
+                            {% if payment.mode_paiement == 'cash' %}
+                                {{ payment.amount }} FCFA
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.mode_paiement == 'wave' %}
+                                {{ payment.amount }} FCFA
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if payment.mode_paiement == 'om' %}
+                                {{ payment.amount }} FCFA
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex flex-column h-100">
+            <div class="text-right mb-2">
+            <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#exitModal" title="Enregistrer une nouvelle sortie">
+                <span class="material-icons-outlined">edit</span>
+            </button>
+            <!-- Modal -->
+                <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="exitModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exitModalLabel">NOUVELLE SORTIE</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <form method="post">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                          {{ exit_form.as_p }}
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                          <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                </div>
+            <table class=" table table-bordered table-hover custom-table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th colspan="2" scope="col" style="background-color:#ff8f7f;
+                        border-right: 1px solid #ff8f7f !important;
+                        border-left: 1px solid #ff8f7f !important;
+                        border-bottom: 1px solid #fff !important;">SORTIES</th>
+                    </tr>
+                    <tr>
+                        <th scope="col" style="border-right: 1px solid white !important; border-left: 1px solid #343A40 !important">TITRE</th>
+                        <th scope="col" style="border-right: 1px solid #343A40 !important;">MONTANT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for exit in exits %}
+                    <tr>
+                        <td>{{ exit.titre }}</td>
+                        <td>{{ exit.montant }} FCFA</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align=center;">No data available in table</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+                </div>
+        </div>
+    </div>
+<div class="bina row">
+<div class="col-md-6 col-12 mb-3">
+    <table class="table table-bordered table-hover custom-table mt-3">
+        <tbody>
+            <tr>
+                <td style="background-color: #343A40; color: #fff; font-weight: bold;">TOT. ENTREES</td>
+                <td>{{ total_entrees_cash }} FCFA</td>
+                <td>{{ total_entrees_wave }} FCFA</td>
+                <td>{{ total_entrees_om }} FCFA</td>
+        </tbody>
+    </table>
+</div>
+<div class="col-md-6 col-12 mb-3">
+    <table class="table table-bordered table-hover custom-table mt-3">
+        <tbody>
+            <tr>
+                <td style="background-color: #343A40; color: #fff; font-weight: bold;">TOT. SORTIES</td>
+                <td>{{ total_sorties }} FCFA</td>
+        </tbody>
+    </table>
+</div>
+</div>
+
+    <div class="bina row">
+<div class="col-md-6 col-12 mb-3">
+    <div class="text-left mt-4">
+    <table class="table table-bordered table-hover custom-table">
+        <tbody>
+            <tr style="font-weight: bold;">
+                <td class="text-center" style="background-color: #E7E6E6;">TOTAL CAISSE</td>
+                <td class="text-center">{{ total_caisse }} FCFA</td>
+            </tr>
+            <tr>
+                <td class="text-center" style=" background-color: #E7E6E6;">REPORT A NOUVEAU</td>
+                <td class="text-center">{{ total_report }} FCFA</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+    </div>
+</div>
+</div>
+</div>
+<br><br>
+
+<!-- JavaScript pour soumettre le formulaire lorsque la date change -->
+<script>
+    document.getElementById('date').addEventListener('change', function() {
+        document.getElementById('date-filter-form').submit();
+    });
+
+
+    // Attend que le DOM soit entièrement chargé
+    document.addEventListener("DOMContentLoaded", function() {
+        // Sélectionne tous les éléments d'alerte
+        var alerts = document.querySelectorAll('.alert');
+
+        // Parcourt chaque alerte
+        alerts.forEach(function(alert) {
+            // Définit un délai pour cacher l'alerte après 3 secondes
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+
+                // Supprime complètement l'élément du DOM après la transition
+                setTimeout(function() {
+                    alert.remove();
+                }, 500); // Correspond au temps de la transition
+            }, 2000); // 3 secondes d'affichage
+        });
+    });
+</script>
+
+{% endblock %}

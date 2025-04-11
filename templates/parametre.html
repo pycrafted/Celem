@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+<div class="container my-4">
+        <!-- Messages d'alerte -->
+        {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <style>
+
+        /* Boutons */
+        /* Boutons */
+    .btn-primary {
+        background-color: #689D71; /* Couleur de fond */
+        border-color: #689D71; /* Couleur de bordure */
+        border-radius: 5px; /* Bords arrondis */
+        padding: 10px 20px; /* Espacement intérieur */
+        font-size: 1rem; /* Taille du texte */
+        color: #fff; /* Couleur du texte */
+    }
+
+    .btn-primary:hover {
+        background-color: green; /* Couleur de fond au survol, légèrement plus foncé */
+        border-color: #689D71; /* Couleur de bordure au survol */
+    }
+
+
+        /* Champs de formulaires */
+        .form-control {
+            border-radius: 5px;
+            padding: 10px;
+            border: 1px solid #ced4da; /* Bordure grise légère pour les champs de formulaire */
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Espacement des formulaires */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Ombre plus distincte pour les cartes */
+        .shadow-sm {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), /* Ombre principale */
+                        0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre secondaire */
+        }
+
+        .custom-hr {
+            border: none; /* Supprime le style par défaut */
+            height: 5px; /* Ajustez la hauteur selon vos préférences */
+            background-color: #E7E6E6; /* Couleur de fond noire */
+            margin: 20px 0; /* Marge au-dessus et en dessous de la ligne */
+        }
+        .card-header.hover-red {
+        background-color: #ff8f7f !important; /* Change la couleur de fond en rouge */
+        }
+        .custom-table {
+            table-layout: fixed;
+            width: 100%; /* Utilise toute la largeur disponible */
+        }
+
+        /* Empêche le débordement horizontal */
+        .table-responsive {
+            max-height: 300px; /* Limite la hauteur pour l'overflow vertical */
+            overflow-y: auto;
+            overflow-x: hidden; /* Désactive le scroll horizontal */
+        }
+
+        /* Ajuste la largeur des colonnes pour éviter un débordement */
+        .custom-table th, .custom-table td {
+            white-space: nowrap; /* Empêche la coupure des mots */
+            text-align: center; /* Centre le contenu des colonnes */
+            overflow: hidden; /* Cache tout contenu débordant */
+            text-overflow: ellipsis; /* Utilise des points de suspension pour le débordement */
+        }
+
+        input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+    </style>
+        <br>
+        <!-- Formulaire d'ajout d'utilisateur -->
+    {% if current_page == 'utilisateur' %}
+    <div class="d-flex justify-content-between">
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark" id="toggleForm">Ajouter un nouvel utilisateur</h5>
+        <div class="card-body">
+            <form method="post" action="{% url 'parametre' %}" id="userForm">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="username" class="text-white">Nom d'utilisateur</label>
+                    <input type="text" name="username" id="username" class="form-control" placeholder="Nom d'utilisateur..." required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="password" class="text-white">Mot de passe</label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Mot de passe..." required>
+                </div>
+                <div class="form-group form-check mb-4">
+                    <input type="checkbox" class="form-check-input" name="is_superuser" id="is_superuser">
+                    <label class="form-check-label" for="is_superuser" style="margin-top:6px; margin-left:5px">Administrateur</label>
+                </div>
+                <div class="d-flex justify-content-center">
+                <button type="submit" name="add_user" class="btn btn-primary w-60" >Créer un nouvel utilisateur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark" >Liste des utilisateurs</h5>
+        <div class="card-body table-responsive" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+            <table class="table table-bordered table-hover custom-table" id="usersTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" style=" border-right: 1px solid white !important; border-left: 1px solid #343A40 !important; text-align:center">Nom d'utilisateur</th>
+                        <th scope="col" style=" border-right: 1px solid white !important; text-align:center">Administrateur</th>
+                        <th scope="col" style=" border-right: 1px solid #343A40 !important; text-align:center">Supprimer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            <form method="post" action="{% url 'parametre' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="user_id" value="{{ user.id }}">
+                                <input type="checkbox" name="toggle_superuser" onchange="this.form.submit()" {% if user.is_superuser %}checked disabled{% else %} {% endif %}>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'delete_user' user.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <span class="material-icons-outlined">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+    {% elif current_page == 'service' %}
+    <div class="d-flex justify-content-between">
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark" style="margin-top:16px"  id="toggleFormulaire">Ajouter un nouveau service</h5>
+        <div class="card-body">
+            <form method="post" action="{% url 'parametre' %}" id="userFormulaire" >
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="proposition">Nom Complet du Nouveau Service</label>
+                    <input type="text" name="proposition" id="proposition" class="form-control" placeholder="exemple: bazin[Lavage+Séchage]..." required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="designation">Abréviation</label>
+                    <input type="text" name="designation" id="designation" class="form-control" placeholder="exemple: bazin[L+S]..." required>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label for="prix" >Prix</label>
+                    <input type="number" name="prix" id="prix" class="form-control" placeholder="0 FCFA" required>
+                </div>
+                <div class="d-flex justify-content-center">
+                <button type="submit" name="add_service" class="btn btn-primary w-50">Ajouter service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+        <div class="card shadow-sm mb-4" style="width:49%">
+            <h5 class="card-header text-center text-white bg-dark">Liste des Services</h5>
+            <div class="card-body table-responsive" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+
+                    <table class="table table-bordered table-hover custom-table" id="servicesTable">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" style="border-right: 1px solid white; border-left: 1px solid #343A40; text-align:center">Service</th>
+                                <th scope="col" style="border-right: 1px solid white; text-align:center">Prix</th>
+                                <th scope="col" style="border-right: 1px solid #343A40; text-align:center">Supprimer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>{{ service.proposition }}</td>
+                                <td>{{ service.prix|floatformat:0 }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'delete_service' service.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <span class="material-icons-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">No data available in table</td>
+                        </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+            </div>
+        </div>
+
+    </div>
+    {% elif current_page == 'caisse' %}
+    <div class="d-flex justify-content-between">
+        <!-- Formulaire d'ajout de service -->
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark">Liste des entrées de caisse</h5>
+        <div class="card-body table-responsive" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+            <table class="table table-bordered custom-table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" style="border-right: 1px solid white; border-left: 1px solid #343A40; text-align:center">Titre</th>
+                        <th scope="col" style="border-right: 1px solid white; text-align:center">Montant</th>
+                        <th scope="col" style="border-right: 1px solid white; text-align:center">Date</th>
+                        <th scope="col" style="border-right: 1px solid #343A40; text-align:center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inpute in inputes %}
+                        <tr>
+                            <td>{{ inpute.titres }}</td>
+                            <td>{{ inpute.montants }} FCFA</td>
+                            <td>{{ inpute.created_ats|date:"d/m/Y" }}</td>
+                            <td>
+                                <form method="post" action="{% url 'delete_inpute' inpute.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                            <span class="material-icons-outlined">delete</span>
+                                        </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No data available in table</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark">Liste des sorties de caisse</h5>
+        <div class="card-body table-responsive" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+
+                <table class="table table-bordered custom-table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" style="border-right: 1px solid white; border-left: 1px solid #343A40; text-align:center">Titre</th>
+                            <th scope="col" style="border-right: 1px solid white; text-align:center">Montant</th>
+                            <th scope="col" style="border-right: 1px solid white; text-align:center">Date</th>
+                            <th scope="col" style="border-right: 1px solid #343A40; text-align:center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exit in exits %}
+                            <tr>
+                                <td>{{ exit.titre }}</td>
+                                <td>{{ exit.montant }}</td>
+                                <td>{{ exit.created_at|date:"d/m/Y" }}</td>
+                                <td>
+                                    <form method="POST" action="{% url 'delete_exit' exit.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <span class="material-icons-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No data available in table</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+        </div>
+    </div>
+
+    </div>
+
+    <div class="d-flex justify-content-between">
+        {% elif current_page == 'settings' %}
+        <div class="card shadow-sm mb-4" style="width:49%;">
+        <h5 class="card-header text-center text-white bg-dark" id="toggleFormulaires">Modifier les réglages généraux</h5>
+            <br>
+        <div class="card-body">
+            <form method="post" action="{% url 'parametre' %}" id="userFormulaires">
+                {% csrf_token %}
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="use_partial_payment" id="use_partial_payment"
+                    {% if settings.use_partial_payment %} checked {% endif %}>
+                    <label class="form-check-label" for="use_partial_payment" style="margin-top:6px; margin-left:5px">Activer le paiement partiel</label>
+                </div>
+                <div class="form-group form-check mb-3">
+                    <input type="checkbox" class="form-check-input" name="use_delivery_confirmation" id="use_delivery_confirmation"
+                    {% if settings.use_delivery_confirmation %} checked {% endif %}>
+                    <label class="form-check-label" for="use_delivery_confirmation" style="margin-top:6px; margin-left:5px">Activer la confirmation de livraison</label>
+                </div>
+                <div class="form-group form-check mb-4">
+                    <input type="checkbox" class="form-check-input" name="use_antidate" id="use_antidate"
+                    {% if settings.use_antidate %} checked {% endif %}>
+                    <label class="form-check-label" for="use_antidate" style="margin-top:6px; margin-left:5px">Activer l'antidatage des factures</label>
+                </div>
+                <br>
+                <div class="d-flex justify-content-center">
+                <button type="submit" name="save_settings" class="btn btn-primary w-50">Enregistrer les réglages</button>
+                </div>
+            </form>
+        </div>
+    </div>
+        {% elif current_page == 'charge' %}
+        <div class="card shadow-sm mb-4" style="width:49%">
+        <h5 class="card-header text-center text-white bg-dark">Liste des Charges</h5>
+        <div class="card-body table-responsive" style="max-height: 300px; overflow-y: auto; overflow-x: hidden;">
+            <table class="table table-bordered custom-table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col" style="border-right: 1px solid white; border-left: 1px solid #343A40; text-align:center">Intitulé</th>
+                        <th scope="col" style="border-right: 1px solid white; text-align:center">Montant</th>
+                        <th scope="col" style="border-right: 1px solid white; text-align:center">Date</th>
+                        <th scope="col" style="border-right: 1px solid #343A40; text-align:center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for depense in depenses %}
+                        <tr>
+                            <td>{{ depense.intitule }}</td>
+                            <td>{{ depense.montant|multiply:depense.quantite }} FCFA</td>
+                            <td>{{ depense.date_depense|date:"d/m/Y" }}</td>
+                            <td>
+                                <form method="post" action="{% url 'delete_depense' depense.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <span class="material-icons-outlined">delete</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No data available in table</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    </div>
+    {% else %}
+    {% endif %}
+    <br><br>
+</div>
+<script>
+    // Attend que le DOM soit entièrement chargé
+    document.addEventListener("DOMContentLoaded", function() {
+        // Sélectionne tous les éléments d'alerte
+        var alerts = document.querySelectorAll('.alert');
+
+        // Parcourt chaque alerte
+        alerts.forEach(function(alert) {
+            // Définit un délai pour cacher l'alerte après 3 secondes
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+
+                // Supprime complètement l'élément du DOM après la transition
+                setTimeout(function() {
+                    alert.remove();
+                }, 500); // Correspond au temps de la transition
+            }, 2000); // 3 secondes d'affichage
+        });
+    });
+
+</script>
+
+
+{% endblock %}

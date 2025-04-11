@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Afficher les alertes -->
+        {% if messages %}
+
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-3" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+    {% endif %}
+
+        <table class="table table-bordered table-hover custom-table" id="tableIndex">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col" style=" border-right: 1px solid white !important; border-left: 1px solid #343A40 !important; text-align:center">N° TICKET</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center;">NOM</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center;">TELEPHONE</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center">DATE</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center">TOTAL</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center">PAYER</th>
+                    <th scope="col" style=" border-right: 1px solid white !important; text-align:center;margin-left:30px;display: {% if not use_delivery_confirmation %}none{% endif %}">LIVRER</th>
+                    <th scope="col" style=" border-right: 1px solid #343A40 !important; text-align:center">ACTION</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% for facture in invoices %}
+                <tr>
+                    <td>{{ facture.reference }}</td>
+                    <td>{{ facture.customer }}</td>
+                    <td>{{ facture.telephone }}</td>
+                    <td>{{ facture.invoice_date_time|date:"d/m/Y" }}</td>
+                    <td>{{ facture.total|floatformat:0 }} FCFA</td>
+                    <td>
+                        {% if facture.balance == 0 %}
+                        <img src="{% static 'images/icon-yes.svg' %}" alt="True"><br>
+                        <small>{{ facture.last_payment_date|date:"d/m/Y" }}</small>
+                        <!--affiche ici la date du dernier paiement-->
+                    {% elif facture.balance == facture.total %}
+                        <img src="{% static 'images/icon-no.svg' %}" alt="False">
+                    {% else%}
+                    <div>
+                        <small>Solde = {{ facture.balance|floatformat:0 }} FCFA</small>
+                    </div>
+                    {% endif %}
+                    </td>
+                    <td style="display: {% if not use_delivery_confirmation %}none{% endif %}">
+                        {% if facture.delivered %}
+                            <img src="{% static 'images/icon-yes.svg' %}" alt="True"><br>
+                            <small>{{ facture.delivered_date|date:"d/m/Y" }}</small>
+                        {% else %}
+                            <img src="{% static 'images/icon-no.svg' %}" alt="False">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button id="btn-invoice-mod" type="button" data-toggle="modal" title="Modifier" data-target="#modifier" data-id="{{ facture.pk }}" data-paid="{{ facture.paid|yesno:'True,False' }}" data-delivered="{{ facture.delivered|yesno:'True,False' }}" data-balance="{{ facture.balance|floatformat:0 }}" class="badge text-white btn-modify" style="background-color:#74D0F1 !important">
+                            <img src="{% static 'images/edit_icon.png' %}" alt="Mail Icon" style="width: 24px; height: 24px;">
+                        </button>
+                        <a href="{% url 'send_invoice' facture.pk %}" class="badge text-white" title="Whatshapp" style="background-color: #28a745;border: 2px solid #343a40">
+                            <img src="{% static 'images/send_icon.png' %}" alt="Send Icon" style="width: 24px; height: 24px;">
+                        </a>
+                        <button type="button" title="Supprimer" class="badge text-white btn-delete" style="background-color:#ff8f7f !important" data-toggle="modal" data-target="#deleteModal" data-id="{{ facture.pk }}">
+                            <img src="{% static 'images/delete_forever_icon.png' %}" alt="Mail Icon" style="width: 24px; height: 24px;">
+                        </button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-dark text-center w-100" id="deleteModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer cette facture ?<mark>Cette action est irréversible.</mark></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <form method="post" id="form-delete-invoice">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modifier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title text-dark text-center w-100" id="exampleModalLabel"></h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <input type="hidden" name="id_modified" id="id_modified" value="">
+
+                        <!-- Ligne pour les checkboxes "Payé" et "Livré" -->
+                        <div class="form-group d-flex align-items-center">
+                            <div class="mr-3">
+                                <input type="checkbox" name="modified" id="paid_checkbox" value="True">
+                                <label for="paid_checkbox" class="ml-1">Payé</label>
+                            </div>
+                            <div style="margin-left:30px;visibility: {% if not use_delivery_confirmation %}hidden{% endif %}">
+                                <input type="checkbox" name="delivered" id="delivered_checkbox" value="True">
+                                <label for="delivered_checkbox" class="ml-1">Livré</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display: {% if not use_antidate %}none{% endif %}">
+                            <label for="payment_date">Date de paiement</label>
+                            <input type="date" class="form-control" id="payment_date" name="payment_date">
+                        </div>
+
+                        <!-- Choix du mode de paiement -->
+                        <div class="form-group">
+                            <label for="mode_paiement">*Mode de paiement*</label>
+                            <select name="mode_paiement" id="mode_paiement" class="form-control">
+                                <option value="">Sélectionnez</option>
+                                <option value="cash" style="color:#228B22">Espèces</option>
+                                <option value="wave" style="color:#00c5f6">Wave</option>
+                                <option value="om" style="color:#f77601">Orange Money</option>
+                            </select>
+                        </div>
+
+                        <!-- Champ pour saisir le montant payé -->
+                        <div class="form-group" style="display: {% if not use_partial_payment %}none{% endif %};">
+                            <label for="amount_paid">*Montant payé*</label>
+                            <input type="number" name="amount_paid" id="amount_paid" class="form-control" value="0" placeholder="Montant payé" min="0" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                        <button type="submit" class="btn btn-primary" id="btn-save" disabled>Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    // Fonction pour basculer la visibilité du champ de livraison
+    function toggleDeliverySection() {
+        var useDeliveryCheckbox = document.getElementById('use_delivery_confirmation');
+        var deliverySection = document.getElementById('delivery-section');
+
+        if (useDeliveryCheckbox.checked) {
+            deliverySection.style.display = 'block';
+        } else {
+            deliverySection.style.display = 'none';
+        }
+    }
+
+    // Exécuter la fonction au chargement de la page
+    window.onload = function() {
+        toggleDeliverySection();
+    };
+
+    // Exécuter la fonction à chaque changement de l'état du checkbox
+    document.getElementById('use_delivery_confirmation').addEventListener('change', toggleDeliverySection);
+</script>
+
+<script>
+    function togglePaymentSection() {
+        var usePaymentCheckbox = document.getElementById('use_partial_payment');
+        var paymentSection = document.getElementById('payment-section');
+
+        if (usePaymentCheckbox.checked) {
+            paymentSection.style.display = 'block';
+        } else {
+            paymentSection.style.display = 'none';
+        }
+    }
+
+    // Exécuter la fonction au chargement de la page
+    window.onload = function() {
+        togglePaymentSection();
+    };
+
+    // Exécuter la fonction à chaque changement de l'état du checkbox
+    document.getElementById('use_partial_payment').addEventListener('change', togglePaymentSection);
+</script>
+
+
+<script type="text/javascript">
+$(document).on('click', '.btn-delete', function() {
+    let invoiceId = $(this).data('id');  // Récupère l'ID de la facture
+    let formAction = "{% url 'delete_invoice' 0 %}".replace('0', invoiceId);  // Génère l'URL avec l'ID
+    $('#form-delete-invoice').attr('action', formAction);  // Modifie l'action du formulaire
+});
+</script>
+
+<script type="text/javascript">
+$(document).on('click', '#btn-invoice-mod', function() {
+    let invoice_id = $(this).data('id');
+    let customer_name = $(this).closest('tr').find('td:nth-child(2)').text();
+    let paid = $(this).data('paid') === "True";
+    let delivered = $(this).data('delivered') === "True";
+    let mode_paiement = $(this).data('mode-paiement') || '';
+    let amount_paid = $(this).data('amount_paid') || 0;
+    let balance = $(this).data('balance');
+
+    // Remplir les valeurs actuelles
+    $('#id_modified').val(invoice_id);
+    $('#paid_checkbox').prop('checked', paid);
+    $('#delivered_checkbox').prop('checked', delivered);
+    $('#mode_paiement').val(mode_paiement);
+    $('#amount_paid').val(amount_paid);
+
+    // Modifier le titre du modal
+    $('#exampleModalLabel').text(`${customer_name}`);
+
+    // Activer ou désactiver le bouton à chaque changement
+    function toggleSaveButton() {
+        let isPaidChecked = $('#paid_checkbox').prop('checked');
+        let modePaiementSelected = $('#mode_paiement').val() !== '';
+        let isDeliveredChecked = $('#delivered_checkbox').prop('checked');
+        let amountEntered = parseFloat($('#amount_paid').val()) || 0;
+
+
+        if (isPaidChecked && amountEntered === 0) {
+            amountEntered = balance;
+            $('#amount_paid').val(balance);
+        }
+
+
+        // Vérification si le montant entré dépasse le solde
+        if (amountEntered > balance) {
+            $('#amount_paid').addClass('is-invalid'); // Ajouter une classe d'erreur
+            $('#balance-warning').text(`Le montant payé (${amountEntered}) ne peut pas dépasser le solde restant (${balance}).`);
+            $('#btn-save').prop('disabled', true);
+        } else {
+            $('#amount_paid').removeClass('is-invalid'); // Enlever la classe d'erreur si tout va bien
+            $('#balance-warning').text('');
+            let canSave = isPaidChecked && modePaiementSelected && amountEntered > 0 || isDeliveredChecked !== delivered;
+            $('#btn-save').prop('disabled', !canSave);
+        }
+    }
+
+    toggleSaveButton();
+
+    // Activer la validation à chaque changement
+    $('#paid_checkbox, #delivered_checkbox, #mode_paiement, #amount_paid').on('change', toggleSaveButton);
+    toggleSaveButton();
+    });
+
+    // Ajouter un élément pour afficher le message d'avertissement dans le modal
+    $(document).ready(function() {
+        let warningElement = `<div id="balance-warning" class="text-danger"></div>`;
+        $('#amount_paid').after(warningElement);
+    });
+
+
+    $(document).ready(function() {
+    // Parcourir chaque ligne de la table des factures
+    $('tbody tr').each(function() {
+        // Récupérer les informations de la facture : solde (balance) et livraison
+        let balance = parseFloat($(this).find('#btn-invoice-mod').data('balance'));
+        let delivered = $(this).find('#btn-invoice-mod').data('delivered') === "True";
+
+        // Désactiver le bouton "Modifier" si le solde est nul et la facture est livrée
+        if (balance === 0 && delivered) {
+            $(this).find('#btn-invoice-mod').prop('disabled', true);
+        } else {
+            $(this).find('#btn-invoice-mod').prop('disabled', false);  // Sinon, garder le bouton activé
+        }
+    });
+});
+
+$(document).ready(function() {
+    $('#tableIndex').DataTable({
+    "paging": true,
+    "searching": true,
+    "order": [[0, "desc"]],
+    "info": true,
+    "autoWidth": true,
+    "responsive": true,
+    "lengthChange": true,  // Désactiver le sélecteur "Show entries"
+    "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/French.json"  // Optionnel : pour la traduction française
+    }
+});
+
+});
+
+
+    // Attend que le DOM soit entièrement chargé
+    document.addEventListener("DOMContentLoaded", function() {
+        // Sélectionne tous les éléments d'alerte
+        var alerts = document.querySelectorAll('.alert');
+
+        // Parcourt chaque alerte
+        alerts.forEach(function(alert) {
+            // Définit un délai pour cacher l'alerte après 3 secondes
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+
+                // Supprime complètement l'élément du DOM après la transition
+                setTimeout(function() {
+                    alert.remove();
+                }, 500); // Correspond au temps de la transition
+            }, 2000); // 3 secondes d'affichage
+        });
+    });
+    $(document).ready(function() {
+        // Quand l'utilisateur clique sur le champ "amount_paid"
+        $('#amount_paid').on('click', function() {
+            $(this).removeAttr('readonly');
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Écoute l'événement de clic sur le bouton "Enregistrer"
+        $('#btn-save').on('click', function(event) {
+            event.preventDefault();  // Empêche l'envoi du formulaire par défaut
+
+            // Envoi d'une requête AJAX pour obtenir les informations de la facture après sauvegarde
+            $.ajax({
+                type: 'POST',
+                url: '',  // Laissez l'URL vide car elle utilisera celle du formulaire
+                data: $('#modifier form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+
+                        // Afficher l'état de livraison
+                        const etatLivraison = response.delivered;
+
+                        // Afficher l'état de paiement
+                        const etatPaiement = response.paid; // Use the value directly returned from Django
+                        $('#invoice-paid').text(`Payé: ${etatPaiement}`);
+
+                        // Ajouter les services à la liste
+                        const servicesList = $('#invoice-services-list');
+                        servicesList.empty(); // Vider la liste précédente
+                        response.invoice_services.forEach(function(service) {
+                            servicesList.append(`<li>${service.service_name} - Quantité : ${service.quantite} - Prix : ${service.prix} FCFA</li>`);
+                        });
+
+                        // Créer le contenu à afficher dans la boîte de dialogue d'impression
+                        let content = `<div>
+                            <style>
+                            body {
+                                font-family: 'Courier New', Courier, monospace;
+                                font-size: 15px;
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+
+                            .totals {
+                                border-top: 1px dashed black;
+                                padding-top: 5px;
+                                font-weight:bold;
+                            }
+
+                            .items {
+                                margin-bottom: 10px;
+                                font-weight:bold;
+                            }
+
+                            .totals p {
+                                display: flex;
+                                justify-content: space-between;
+                                margin: 5px 0;
+                                font-weight:bold;
+                            }
+
+                            .thanks {
+                                text-align: center;
+                                margin-top: 18px;
+                            }
+
+                            .ticket-number {
+                                border-bottom: 1px dashed black;
+                                padding-bottom: 10px;
+                                margin-bottom: 10px;
+                            }
+
+                            .instruction {
+                                margin-top: 10px;
+                                font-weight:bold;
+                            }
+
+                            .instruction p {
+                                margin: 2px 0;
+                                display: flex;
+                            }
+
+                            .receipt {
+                                width: 80mm;
+                                margin: 0 auto;
+                                padding: 10px;
+                                background-color: white;
+                            }
+
+                            .receipt-header h1 {
+                                font-size: 18px;
+                                margin: 0;
+                                border-top: 1px solid black;
+                                padding-top: 10px;
+                            }
+
+                            .receipt-header p {
+                                margin: 5px 0;
+                                font-weight:bold;
+                            }
+
+                            </style>
+                           <div class="receipt">
+                            <div class="receipt-header" style:"font-weight:bold;">
+                                <h1>LAVANDARIA PRESSING</h1>
+                                <p>LAVERIE PROFESSIONNELLE</p>
+                                <p>Cices Foire lot N°234</p>
+                                <p>Téléphone(laverie) : 768155097</p>
+                                <p>Téléphone(Samba) : 778354278</p>
+                                <p>Le ${response.invoice_date_time}</p>
+                                <p>Client : ${response.customer}</p>
+                                <p class="ticket-number" >Ticket N : ${response.reference}</p>
+                            </div>
+
+                            <div class="items">`;
+                            response.invoice_services.forEach(function(service) {
+                                let totalServicePrice = service.prix * service.quantite;
+
+                                content += `<div style="display: flex; justify-content: space-between;">
+                                                <span style="flex: 1; text-align: left;">${service.service_name}</span>
+                                                <span style="flex: 1; text-align: center;">${service.quantite}x${service.prix}</span>
+                                                <span style="flex: 1;text-align: center;">${totalServicePrice.toFixed(0)}<span style="visibility: hidden">****</span></span>
+                                            </div>`;
+                            });
+
+                            content += `
+                                    </div>
+
+                            <div class="totals" style="display: flex; justify-content: space-between;">
+                                <span style="flex: 1; text-align: left;"><strong>Total</strong> :</span>
+                                <span style="flex: 1; text-align: right;">${response.total} <span style="visibility: hidden">*****</span></span>
+                            </div>`;
+
+                            if (response.balance != 0 && response.balance != response.total) {
+                                content += `<div style="display: flex; justify-content: space-between;font-weight:bold">
+                                                <span style="flex: 1; text-align: left;"><strong>Restant</strong> :</span>
+                                                <span style="flex: 1; text-align: right;">${response.balance} <span style="visibility: hidden">*****</span></span>
+                                            </div>`;
+                            }
+
+                            content += `
+                            <div class="totals">
+                                <p>Payé : ${etatPaiement}</p>
+                                <p style="display: {% if not use_delivery_confirmation %}none{% endif %};">Livré : ${etatLivraison}</p>
+                            </div>
+
+                            <div class="instruction" style="border-top: 1px dashed black; padding-bottom: 5px;">
+                                <p>[P] : Pressing</p>
+                                <p>[R] : Repassage</p>
+                                <p>[L] : Lavage</p>
+                                <p>[S] : Séchage</p>
+                            </div>
+                   </div>
+                            </div>`;
+
+                        // Calculer la position pour centrer la fenêtre
+                        const width = 600;
+                        const height = 800;
+                        const left = (window.innerWidth / 2) - (width / 2);
+                        const top = (window.innerHeight / 2) - (height / 2);
+
+                        let printWindow = window.open('', '', `width=${width},height=${height},top=${top},left=${left}`);
+                        // Écrire le contenu dans la fenêtre d'impression
+                        printWindow.document.write(content);
+                        printWindow.document.close(); // Fermer l'écriture du document pour permettre son affichage
+                        printWindow.focus(); // Mettre le focus sur la fenêtre d'impression pour qu'elle soit au premier plan
+                        printWindow.print(); // Lancer la commande d'impression de la fenêtre ouverte
+                        printWindow.close();
+                        window.location.reload();
+                    } else {
+                        // Afficher une alerte si la sauvegarde a échoué
+                        alert('Erreur lors de la sauvegarde des informations de la facture.');
+                    }
+                },
+                error: function() {
+                    alert('Une erreur est survenue lors de la sauvegarde des informations de la facture. Veuillez réessayer.');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}

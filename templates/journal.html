@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <!-- Formulaire de filtre de date aligné à droite -->
+    <div class="d-flex justify-content-center mb-3">
+        <form method="GET" action="{% url 'journal' %}" class="form-inline" id="date-filter-form">
+            <div class="form-group">
+                <input type="date" id="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+        </form>
+    </div>
+    <table class="table table-bordered table-hover custom-table" style="margin-left:9px" id="tableJournal">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" style="border-left: 1px solid black !important; border-right: 1px solid white !important">REFERENCE</th>
+                <th scope="col" style="border-right: 1px solid white !important;border-left: 1px solid black !important">NOM ET PRENOM</th>
+                <th scope="col" style="border-right: 1px solid white !important">SERVICES</th>
+                <th scope="col" style="border-right: 1px solid white !important">MONTANT</th>
+                <th scope="col" style="border-right: 1px solid white !important">RESTE</th>
+                <th scope="col" style="border-right: 1px solid white !important;">DATE PAYEMENT</th>
+                <th scope="col" style="border-left: 1px solid black !important; border-right: 1px solid black !important; display: {% if not use_delivery_confirmation %}none{% endif %}">DATE LIVRAISON</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td >{{ invoice.reference }}</td>
+                <td>{{ invoice.customer }}</td>
+
+                <td>
+                    <!-- Bouton pour ouvrir le modal -->
+                        <button type="button" class="btn" data-toggle="modal" data-target="#servicesModal-{{ invoice.id }}" title="Détails">
+                            <i class="material-icons-outlined">visibility</i> <!-- Icône œil -->
+                        </button>
+
+                    <!-- Modal pour afficher les services -->
+                    <div class="modal fade" id="servicesModal-{{ invoice.id }}" tabindex="-1" role="dialog" aria-labelledby="servicesModalLabel-{{ invoice.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="servicesModalLabel-{{ invoice.id }}">Facture de {{ invoice.customer }} [Ticket n°{{ invoice.reference }}] </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                                </div>
+                        <div class="modal-body" style="text-align:left;">
+                            {% for service in invoice.invoice_services.all %}
+                                {{service.quantite}} x {{ service.service.designation }} :
+                                {{service.service.prix}} FCFA <br>
+                            {% endfor %}
+                        </div>
+                                <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </td>
+
+        <td>{{ invoice.total }} FCFA</td>
+                <td>{{ invoice.balance }}  FCFA</td>
+                <td>{{ invoice.latest_payment_date|date:"d/m/Y H:i" }}</td>
+                <td style="display: {% if not use_delivery_confirmation %}none{% endif %}">{{ invoice.delivered_date|date:"d/m/Y" }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="text-right mt-2">
+        <table class="table table-bordered custom-table mini-table" style="width: 327px">
+            <tbody>
+                <tr style="font-weight: bold;">
+                    <td class="text-center" style="background-color: #E7E6E6;">CHIFFRE D'AFFAIRES</td>
+                    <td class="text-center">{{ total_sales }} FCFA</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<br><br>
+<script>
+    // Fonction pour basculer la visibilité du champ de livraison
+    function toggleDeliverySection() {
+        var useDeliveryCheckbox = document.getElementById('use_delivery_confirmation');
+        var deliverySection = document.getElementById('delivery-section');
+
+        if (useDeliveryCheckbox.checked) {
+            deliverySection.style.display = 'block';
+        } else {
+            deliverySection.style.display = 'none';
+        }
+    }
+
+    // Exécuter la fonction au chargement de la page
+    window.onload = function() {
+        toggleDeliverySection();
+    };
+
+    // Exécuter la fonction à chaque changement de l'état du checkbox
+    document.getElementById('use_delivery_confirmation').addEventListener('change', toggleDeliverySection);
+</script>
+<!-- JavaScript pour soumettre le formulaire lorsque la date change -->
+<script>
+    document.getElementById('date').addEventListener('change', function() {
+        document.getElementById('date-filter-form').submit();
+    });
+    $(document).ready(function() {
+    $('#tableJournal').DataTable({
+    "paging": false,
+    "searching": false,
+    "ordering": true,
+    "info": false,
+    "autoWidth": true,
+    "responsive": true,
+    "lengthChange": false,  // Désactiver le sélecteur "Show entries"
+    "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/French.json"  // Optionnel : pour la traduction française
+    }
+});
+});
+</script>
+{% endblock %}

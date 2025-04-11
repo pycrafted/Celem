@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <!-- Formulaire de filtre de date aligné au centre -->
+    <div class="d-flex justify-content-center mb-3">
+        <form method="GET" action="{% url 'bilan' %}" class="form-inline" id="month-filter-form">
+            <div class="form-group">
+                <input type="month" id="month" name="month" class="form-control" value="{{ month_filter }}">
+            </div>
+        </form>
+    </div>
+
+    <!-- Contenu des tableaux déjà présent dans bilan.html -->
+    <div class="container mt-5 d-flex justify-content-center bilan-tables">
+
+        <!-- table chiffre d'affaire -->
+        <div class=" binome ml-auto mr-2 ca-table">
+            <!-- Premier tableau -->
+            <div class="d-flex justify-content-center">
+                <table class="table table-bordered custom-table" style="width: auto;">
+                    <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="text-center" style="width: 150px; background-color: #E7E6E6;">C.A MENSUEL</td>
+                            <td class="text-center" style="width: 150px;">{{ total_sales }} FCFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Second tableau -->
+            <div class="d-flex justify-content-center mt-2">
+                <table class="table table-bordered table-hover custom-table" style="width: auto;">
+                    <thead class="thead-dark">
+                        <tr>
+                        <th colspan="2" scope="col" style="
+                        border-left: 1px solid #343A40 !important ;
+                        border-right: 1px solid #343A40 !important;
+                        border-bottom: 1px solid #fff !important;">CHIFFRE D'AFFAIRES</th>
+                    </tr>
+                        <tr>
+                            <th scope="col" style="width: 150px; text-align: center; border-left: 1px solid black !important; border-right: 1px solid white !important">DATE</th>
+                            <th scope="col" style="width: 150px; text-align: center; border-right: 1px solid black !important;">MONTANT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in daily_sales %}
+                            <tr>
+                                <td style="text-align: center;">{{ sale.invoice_date_time__date|date:"d/m/Y" }}</td>
+                                <td style="text-align: center;">{{ sale.total }} FCFA</td>
+                            </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" style="text-align=center;">No data available in table</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- table dépense -->
+        <div class="binome mx-2 charges-table">
+            <!-- Premier tableau -->
+            <div class="d-flex justify-content-center">
+                <table class="table table-bordered custom-table" style="width: auto;">
+                    <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="text-center" style="width: 150px; background-color: #E7E6E6;">CHARGE MENS.</td>
+                            <td class="text-center" style="width: 150px;">{{ total_depenses }} FCFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Second tableau -->
+            <div class="d-flex justify-content-center mt-2">
+                <table class="table table-bordered table-hover custom-table" style="width: auto;">
+                    <thead class="thead-dark">
+                        <tr>
+                        <th colspan="2" scope="col" style="
+                        border-left: 1px solid #343A40 !important ;
+                        border-right: 1px solid #343A40 !important;
+                        border-bottom: 1px solid #fff !important;">CHARGE</th>
+                    </tr>
+                        <tr>
+                            <th scope="col" style="width: 150px; text-align: center; border-left: 1px solid black !important; border-right: 1px solid white !important">DATE</th>
+                            <th scope="col" style="width: 150px; text-align: center; border-right: 1px solid black !important;">MONTANT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for depense in daily_depenses %}
+                    <tr>
+                        <td style="text-align: center;">{{ depense.date_depense__date|date:"d/m/Y" }}</td>
+                        <td style="text-align: center;">{{ depense.total }} FCFA</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align=center;">No data available in table</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Binôme de droite -->
+        <div class="binome mr-auto ml-2 benefits-table">
+
+            <!-- premier tableau encaissement -->
+            <div class="d-flex justify-content-center">
+                <table class="table table-bordered custom-table" style="width: auto;">
+                    <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="text-center" style="width: 150px; background-color: #E7E6E6;">ENC. MENSUEL</td>
+                            <td class="text-center" style="width: 150px;">{{ total_benefit }} FCFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Second tableau encaissement -->
+            <div class="d-flex justify-content-center mt-2">
+                <table class="table table-bordered table-hover custom-table" style="width: auto;">
+                    <thead class="thead-dark">
+                        <tr>
+                        <th colspan="2" scope="col" style="
+                        border-left: 1px solid #343A40 !important ;
+                        border-right: 1px solid #343A40 !important;
+                        border-bottom: 1px solid #fff !important;">ENCAISSEMENT</th>
+                    </tr>
+                        <tr>
+                            <th scope="col" style="width: 150px; text-align: center; border-left: 1px solid black !important; border-right: 1px solid white !important">DATE</th>
+                            <th scope="col" style="width: 150px; text-align: center; border-right: 1px solid black !important;">MONTANT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                            {% for combined in daily_combined_totals %}
+                                <tr>
+                                    <td style="text-align: center;">{{ combined.date|date:"d/m/Y" }}</td>
+                                    <td style="text-align: center;">{{ combined.total }} FCFA</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="2" style="text-align=center;">No data available in table</td>
+                                </tr>
+                            {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<br><br>
+<!-- JavaScript pour soumettre le formulaire lorsque la date change -->
+<script>
+    document.getElementById('month').addEventListener('change', function() {
+        document.getElementById('month-filter-form').submit();
+    });
+</script>
+
+{% endblock %}

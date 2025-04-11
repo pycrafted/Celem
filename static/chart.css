@@ -1,0 +1,183 @@
+body {
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background: #e9ecef;
+    position: relative;
+    height: 100%;
+}
+
+
+.material-icons-outlined {
+  vertical-align: middle;
+  line-height: 1px;
+}
+
+.text-primary {
+  color: #666666;
+}
+
+.text-blue {
+  color: #246dec;
+}
+
+.text-red {
+  color: #cc3c43;
+}
+
+.text-green {
+  color: #367952;
+}
+
+.text-orange {
+  color: #f5b74f;
+}
+
+.font-weight-bold {
+  font-weight: 600;
+}
+
+.main-container {
+  grid-area: main;
+  overflow-y: hidden;
+  padding: 10px;
+}
+
+.main-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 25px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  border: 1px solid #d2d2d3;
+  border-radius: 5px;
+  box-shadow: 0 6px 7px -4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.card:first-child {
+  border-left: 7px solid #e7e6e6;
+}
+
+.card:nth-child(2) {
+  border-left: 7px solid #e7e6e6;
+}
+
+.card:nth-child(3) {
+  border-left: 7px solid #e7e6e6;
+}
+
+.card:nth-child(4) {
+  border-left: 7px solid #e7e6e6;
+}
+
+.card > span {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-inner > p {
+  font-size: 18px;
+}
+
+.card-inner > span {
+  font-size: 35px;
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.charts-card {
+   /* Assure que le contenu est distribué de manière égale */
+  background-color: #ffffff;
+  margin-bottom: 20px;
+  padding: 25px;
+  box-sizing: border-box;
+  -webkit-column-break-inside: avoid;
+  border: 1px solid #d2d2d3;
+  border-radius: 5px;
+  box-shadow: 0 6px 7px -4px rgba(0, 0, 0, 0.2);
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #a5aaad;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4f35a1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a5aaad;
+}
+
+/* ---------- MEDIA QUERIES ---------- */
+/* Ajustements pour éviter l'apparition d'une barre latérale */
+
+/* Pour les écrans de taille moyenne */
+@media screen and (max-width: 992px) {
+  .main-cards {
+    grid-template-columns: 1fr 1fr; /* Ajustement pour deux colonnes sur les cartes principales */
+    gap: 10px;
+  }
+
+  .charts {
+    grid-template-columns: 1fr; /* Une seule colonne pour les graphiques sur les tailles moyennes */
+    margin-top: 30px;
+  }
+}
+
+/* Pour les petits écrans */
+@media screen and (max-width: 768px) {
+  .main-cards {
+    grid-template-columns: 1fr; /* Une seule colonne pour les cartes principales sur les petits écrans */
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .charts {
+    grid-template-columns: 1fr; /* Une seule colonne pour les graphiques sur les petits écrans */
+    margin-top: 30px;
+  }
+}
+
+.animated-title {
+  font-size: 16px;
+  color: #343a40;
+  text-align: center;
+  height: 20px; /* Pour éviter de changer la hauteur lors de l'animation */
+  overflow: hidden; /* Cache le texte qui dépasse */
+  white-space: nowrap;
+}

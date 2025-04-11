@@ -1,0 +1,496 @@
+body {
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background-color: #e9ecef;
+    position: relative;
+    height: 100%;
+}
+
+.invoice-container {
+    padding: 1rem;
+}
+
+.invoice-container .invoice-header .invoice-logo {
+    margin: 0.8rem 0 0 0;
+    display: inline-block;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #000;
+}
+
+.invoice-container .invoice-header .invoice-logo img {
+    max-width: 130px;
+}
+
+.invoice-container .invoice-header address {
+    font-size: 0.8rem;
+    color: #000;
+    margin: 0;
+}
+
+.invoice-container .invoice-details {
+    margin: 1rem 0 0 0;
+    padding: 1rem;
+    line-height: 180%;
+    background: #E5E7E9;
+}
+
+.invoice-container .invoice-details .invoice-num {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #000;
+}
+
+.invoice-container .invoice-body {
+    padding: 1rem 0 0 0;
+}
+
+.invoice-container .invoice-footer {
+    text-align: center;
+    font-size: 1rem;
+    margin: 5px 0 0 0;
+    color: #000;
+}
+
+.invoice-status {
+    text-align: center;
+    padding: 1rem;
+    background: #272e48;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.invoice-status h2.status {
+    margin: 0 0 0.8rem 0;
+}
+
+.invoice-status h5.status-title {
+    margin: 0 0 0.8rem 0;
+    color: #8a99b5;
+}
+
+.invoice-status p.status-type {
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+    line-height: 150%;
+}
+
+.invoice-status i {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+    display: inline-block;
+    padding: 1rem;
+    background: #1a233a;
+    border-radius: 50px;
+}
+
+.invoice-status .badge {
+    text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+    .invoice-container {
+        padding: 1rem;
+    }
+
+    .d-none.d-md-table-cell {
+        display: none;
+    }
+}
+
+.custom-table {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+    width: auto;
+    margin: 0 10px;
+}
+
+.custom-table thead {
+    background: #2f71c1;
+}
+
+.custom-table thead th {
+    border: 0;
+    color: #000;
+}
+
+.custom-table > tbody tr:hover {
+    background: #172033;
+}
+
+.custom-table > tbody tr:nth-of-type(even) {
+    background-color: #1a243a;
+}
+
+.custom-table > tbody td {
+    border: 1px solid #2e3d5f;
+}
+
+.table td {
+    background-color: #fff;
+    color: #000;
+}
+
+th {
+    background-color: #adb5bd;
+}
+
+.table {
+    background: #1a243a;
+    color: #000;
+    font-size: 0.75rem;
+}
+
+.text-success {
+    color: #c0d64a !important;
+}
+
+.custom-actions-btns {
+    margin: auto;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.custom-actions-btns .btn {
+    margin: 0.3rem 0 0.3rem 0.3rem;
+}
+
+/* Styles pour les boutons d'action */
+.btn-modifier {
+    color: #fff;
+    border: 2px solid #000;
+}
+
+.btn-imprimer {
+    color: #fff;
+    border: 2px solid #000;
+}
+
+.btn-modifier:hover, .btn-imprimer:hover {
+    opacity: 0.8;
+}
+
+/* Styles pour les étiquettes (badges) */
+.label-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.badge-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    background-color: #40a3ff;
+    color: #fff;
+    border-radius: 5px;
+    border: 2px solid #0056b3;
+    text-transform: uppercase;
+}
+
+/* Personnalisation des tableaux */
+.custom-table {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-table thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.custom-table tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.custom-table tbody tr:nth-of-type(even) {
+    background-color: #e9ecef;
+}
+
+.custom-table th, .custom-table td {
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #dee2e6;
+    width: 14%;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #dae0e5;
+}
+
+/* Styles existants */
+
+/* Styles pour le mini tableau "CHIFFRE D'AFFAIRES" */
+.mini-table {
+    width: 50%;
+    margin-right: 0;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mini-table tbody tr {
+    background-color: #ffffff;
+}
+
+.mini-table td {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #dee2e6;
+}
+
+/* Harmonisation avec le reste des tableaux */
+.mini-table td.text-right {
+    text-align: right;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.mini-table td.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold;
+}
+
+/* Styles pour le tableau en bas de la page */
+.maxi-table {
+    width: 50%;
+    margin-left: 0;
+    margin-right: auto;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.maxi-table td {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #dee2e6;
+}
+
+.maxi-table td.text-center {
+    text-align: center;
+}
+
+
+
+
+/* Texte en couleur pour les chiffres */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+/* Styles pour l'impression */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .printable, .printable * {
+        visibility: visible;
+    }
+    .printable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .printable .invoice-container {
+        margin: 0 auto;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    .printable .card {
+        border: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+}
+
+@page {
+    size: landscape;
+    margin: 20mm;
+}
+
+/* Styles pour les tableaux dans receipt.html */
+.table {
+    width: 100%; /* Assure que les tableaux prennent la largeur de la colonne */
+}
+
+.custom-table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Réduit la taille des tableaux à la moitié */
+.table-container {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+}
+
+.table-container .table {
+    width: 48%; /* Réduit la largeur des tableaux à environ la moitié */
+}
+
+/* Styles de colonne pour les tableaux côte à côte */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-md-6 {
+    flex: 1 1 50%; /* Assure que chaque tableau occupe la moitié de l'espace */
+}
+
+
+/* Loader styles */
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+}
+
+.loader-container.hidden{
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader {
+    width: 120px;
+    height: 120px;
+    border: 16px solid #e5e5e5;
+    border-top: 16px solid #007bff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    animation: loader 1s linear infinite;
+}
+@keyframes loader{
+    100%{
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+
+/* Ajouter ce style pour aligner le bouton "edit" avec le champ de recherche */
+.d-flex.justify-content-start.align-items-center {
+    gap: 10px; /* Espacement entre le bouton et le champ de recherche */
+}
+
+/* Optionnel : Affiner la taille du bouton et l'espacement */
+.btn-link.p-1 {
+    padding: 0.5rem; /* Ajuster le padding si nécessaire */
+}
+
+/* Si nécessaire, ajuster la largeur du champ de recherche */
+#search {
+    max-width: 400px; /* Ajuster la largeur selon vos préférences */
+}
+
+
+/* Styles pour la section de statut */
+.p-4 {
+    padding: 1.5rem;
+}
+
+.rounded {
+    border-radius: 8px;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+/* Style pour augmenter la taille des checkbox */
+.custom-checkbox {
+    width: 25px;
+    height: 25px;
+    transform: scale(1); /* Ajuste la taille */
+    margin-right: 3px; /* Espace entre la checkbox et le label */
+    cursor: pointer; /* Affiche le curseur pointer pour une meilleure expérience utilisateur */
+}
+
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.font-weight-bold {
+    font-weight: 600;
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.form-check-label {
+    margin-right: 20px;
+}
+
+.form-control {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.w-25 {
+    width: 25%;
+}
+
+.bilan-tables {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.binome {
+    flex: 1 1 30%; /* Chaque tableau prend environ 30% de la largeur */
+    margin: 10px;
+}
+
+@media (max-width: 768px) {
+    .binome {
+        flex: 1 1 100%; /* Chaque tableau prend 100% de la largeur sur les petits écrans */
+        margin: 5px 0;
+    }
+
+}
+
+
+
+

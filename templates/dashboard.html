@@ -1,0 +1,641 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="container  mt-5">
+
+
+
+  <div class="main-cards">
+      <!-- Card 1: DEPENSE MENSUEL MOYEN -->
+      <div class="card" title="DEPENSE MENSUEL MOYEN">
+        <div class="card-inner">
+          <strong><div class="animated-title" id="title-1"></div></strong>
+        </div>
+        <span style="font-size: 15px; text-align:center; color:#343a40;">
+          {{ depense_mensuelle_moyenne|floatformat:0 }} FCFA
+        </span>
+      </div>
+
+      <!-- Card 2: NOMBRE DE CLIENTS MENSUELS MOYEN -->
+      <div class="card" title="NOMBRE DE CLIENTS MENSUELS MOYEN">
+        <div class="card-inner">
+          <strong><div class="animated-title" id="title-2"></div></strong>
+        </div>
+        <span style="font-size: 15px; text-align:center; color:#343a40;">
+          {{ average_monthly_invoices|floatformat:0 }} Clients
+        </span>
+      </div>
+
+      <!-- Card 3: MONTANT MOYEN DEPENSER PAR CLIENT -->
+      <div class="card" title="MONTANT MOYEN DEPENSER PAR CLIENT">
+        <div class="card-inner">
+          <strong><div class="animated-title" id="title-3"></div></strong>
+        </div>
+        <span style="font-size: 15px; text-align:center; color:#343a40;">
+          {{ montant_moyen|floatformat:0 }} FCFA
+        </span>
+      </div>
+
+      <!-- Card 4: CHIFFRE D'AFFAIRES MENSUEL MOYEN -->
+      <div class="card" title="CHIFFRE D'AFFAIRES MENSUEL MOYEN">
+        <div class="card-inner">
+          <strong><div class="animated-title" id="title-4"></div></strong>
+        </div>
+        <span style="font-size: 15px; text-align:center; color:#343a40;">
+          {{ average_monthly_revenue|floatformat:0 }} FCFA
+        </span>
+      </div>
+    </div>
+
+
+
+        <!--met la table ici-->
+        <div class="container mt-3">
+    <table class="table table-bordered table-hover custom-table" id="dashboard-table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" style="background-color: rgba(255, 255, 255, 1)"></th>
+                <th scope="col" style="border-right: 1px solid white !important">JAN</th>
+                <th scope="col" style="border-right: 1px solid white !important">FEV</th>
+                <th scope="col" style="border-right: 1px solid white !important">MARS</th>
+                <th scope="col" style="border-right: 1px solid white !important">AVRIL</th>
+                <th scope="col" style="border-right: 1px solid white !important">MAI</th>
+                <th scope="col" style="border-right: 1px solid white !important">JUIN</th>
+                <th scope="col" style="border-right: 1px solid white !important">JUL</th>
+                <th scope="col" style="border-right: 1px solid white !important">AOUT</th>
+                <th scope="col" style="border-right: 1px solid white !important">SEP</th>
+                <th scope="col" style="border-right: 1px solid white !important">OCT</th>
+                <th scope="col" style="border-right: 1px solid white !important">NOV</th>
+                <th scope="col" style="border-right: 1px solid white !important; border-right: 1px solid black !important">DEC</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td scope="col" style="color:white; background-color:#343A40;
+                border-bottom: 1px solid white !important; font-weight: bold;">C.A</td>
+                <td><strong>{{ revenue_data.0|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.1|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.2|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.3|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.4|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.5|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.6|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.7|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.8|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.9|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.10|floatformat:0 }}</strong></td>
+                <td><strong>{{ revenue_data.11|floatformat:0 }}</strong></td>
+            </tr>
+            <tr>
+                <td scope="col" style="color:white; background-color:#343A40; font-weight: bold;">DEPENSE</td>
+                <td><strong>{{ depense_datas.0|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.1|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.2|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.3|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.4|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.5|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.6|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.7|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.8|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.9|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.10|floatformat:0 }}</strong></td>
+                <td><strong>{{ depense_datas.11|floatformat:0 }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<br>
+
+    <div class="charts">
+
+        <div class="charts-card" style="border-left: 7px solid #e7e6e6;">
+            <h2 class="card-header text-center text-white bg-dark" style="font-size:14px">Graphique du chiffre d'affaires</h2>
+        <div id="area-chart"></div>
+        </div>
+
+        <div class="charts-card" style="border-left: 7px solid #e7e6e6;display:none">
+        <h2 class="card-header text-center text-white bg-dark" style="font-size:14px">Analyse de Fréquentation Hebdomadaire</h2>
+        <div id="bar-chart"></div>
+        </div>
+
+        <div class="charts-card" style="border-left: 7px solid #e7e6e6;display:none">
+            <!-- Formulaire de filtre par mois aligné au centre -->
+            <p class="card-header text-center text-white bg-dark" style="padding-right:60px">Répartition des charges mensuelles</p><br>
+        <div class="d-flex justify-content-center mb-3">
+            <div class="form-group">
+                <input  style="border-left: 7px solid #e7e6e6;" type="month" id="month-filter" name="month-filter" class="form-control" value="{{ selected_month }}">
+            </div>
+        </div>
+
+            <!-- Filtre par mois -->
+            <div id="satisfaction-chart"></div>
+        </div>
+
+        <div class="charts-card" style="border-left: 7px solid #e7e6e6;">
+            <h2 class="card-header text-center text-white bg-dark" style="font-size:14px">Graphique des dépenses mensuelles</h2>
+        <div id="depense-chart"></div> <!-- Conteneur pour le graphique des dépenses -->
+        </div>
+
+    </div>
+
+
+
+
+  </main>
+<!-- Le script chart.js sera chargé via le lien dans base.html -->
+
+  <!-- Inclure le script ApexCharts depuis un CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!--Etude du chiffre d'affaires-->
+<script type="text/javascript">
+    // Charger les données JSON
+    const salesData = JSON.parse('{{ sales_data|safe }}');  // Assurez-vous de parser les données JSON
+
+    console.log("Données de ventes:", salesData); // Vérification des données dans la console
+
+    if (Array.isArray(salesData) && salesData.length === 24) {
+        console.log("Les données sont correctement formatées.");
+    } else {
+        console.error("Les données ne sont pas correctement formatées ou sont manquantes.");
+    }
+
+    // Configuration du graphique ApexChart
+    const areaChartOptions = {
+        series: [{
+            name: 'Chiffre d\'affaires',
+            data: salesData
+        }],
+        chart: {
+            type: 'area',
+            background: 'transparent',
+            height: 350,
+            stacked: false,
+            toolbar: { show: false },
+        },
+        colors: ['#1A233A'],
+        labels: [
+            'Jan ' + (new Date().getFullYear() - 1), 'Fév ' + (new Date().getFullYear() - 1), 'Mar ' + (new Date().getFullYear() - 1),
+            'Avr ' + (new Date().getFullYear() - 1), 'Mai ' + (new Date().getFullYear() - 1), 'Juin ' + (new Date().getFullYear() - 1),
+            'Juil ' + (new Date().getFullYear() - 1), 'Août ' + (new Date().getFullYear() - 1), 'Sep ' + (new Date().getFullYear() - 1),
+            'Oct ' + (new Date().getFullYear() - 1), 'Nov ' + (new Date().getFullYear() - 1), 'Déc ' + (new Date().getFullYear() - 1),
+            'Jan ' + new Date().getFullYear(), 'Fév ' + new Date().getFullYear(), 'Mar ' + new Date().getFullYear(),
+            'Avr ' + new Date().getFullYear(), 'Mai ' + new Date().getFullYear(), 'Juin ' + new Date().getFullYear(),
+            'Juil ' + new Date().getFullYear(), 'Août ' + new Date().getFullYear(), 'Sep ' + new Date().getFullYear(),
+            'Oct ' + new Date().getFullYear(), 'Nov ' + new Date().getFullYear(), 'Déc ' + new Date().getFullYear()
+        ],
+        dataLabels: { enabled: false },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.4,
+                opacityTo: 0.1,
+                stops: [0, 100]
+            }
+        },
+        grid: {
+            borderColor: '#55596e',
+            yaxis: { lines: { show: true } },
+            xaxis: { lines: { show: true } }
+        },
+        legend: {
+            show: true,
+            position: 'top',
+            labels: { colors: '#000' },
+        },
+        stroke: { curve: 'smooth' },
+        xaxis: {
+            axisBorder: { color: '#55596e', show: true },
+            axisTicks: { color: '#55596e', show: true },
+            labels: { style: { colors: '#000' } },
+        },
+        yaxis: {
+            title: { text: "Chiffres d'affaires", style: { color: '#000' } },
+            labels: {
+                style: { colors: '#000' },
+                formatter: function (val) {
+                    return val.toLocaleString() + ' FCFA';  // Ajouter 'FCFA' aux labels de l'axe Y
+                }
+            }
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            theme: 'dark',
+            y: {
+                formatter: function (val) {
+                    return val.toLocaleString() + ' FCFA';  // Ajouter 'FCFA' à la valeur
+                }
+            }
+        },
+    };
+
+    // Initialiser et rendre le graphique
+    const areaChart = new ApexCharts(document.querySelector('#area-chart'), areaChartOptions);
+    areaChart.render();
+</script>
+<!--Répartition des dépenses mensuelles-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ajout de l'événement pour le filtre de mois
+        const monthFilter = document.getElementById('month-filter');
+
+        // Lorsque la date est modifiée, recharger la page avec le mois sélectionné
+        monthFilter.addEventListener('change', function () {
+            const selectedMonth = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('month', selectedMonth);
+            window.location.href = url.toString();
+        });
+
+        try {
+            // Récupérer les données depuis le template Django
+            const labels = JSON.parse('{{ labels|escapejs }}');
+            const data = JSON.parse('{{ data|escapejs }}');
+            const totalValues = JSON.parse('{{ total_values|escapejs }}');
+
+            // Vérifications dans la console
+            console.log('Labels récupérés :', labels);
+            console.log('Données récupérées :', data);
+            console.log('Valeurs totales récupérées :', totalValues);
+
+            if (labels.length === 0 || data.length === 0 || totalValues.length === 0) {
+                console.error('Les labels, les données ou les valeurs totales sont vides. Veuillez vérifier les données dans le template.');
+                return; // Arrêtez l'exécution si les données sont incorrectes
+            }
+
+            // Options du graphique
+            var options = {
+                chart: {
+                    height: 350,
+                    type: 'pie',
+                },
+                series: data,  // Utilise les données envoyées par Django
+                labels: labels,  // Utilise les labels envoyés par Django
+                legend: {
+                    show: true,
+                    offsetY: 170,
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return val.toFixed(0) + '%';  // Affiche les pourcentages avec deux décimales
+                    },
+                    dropShadow: {
+                        enabled: true,
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val, opts) {
+                            // Utiliser les valeurs totales pour le tooltip
+                            const index = opts.seriesIndex;
+                            const total = totalValues[index];
+                            return `${total.toFixed(0)} FCFA`;
+                        }
+                    }
+                },
+                theme: {
+                    monochrome: {
+                        enabled: true,
+                        color: '#1A233A',
+                    }
+                },
+                responsive: [{
+                    breakpoint: 768,
+                    options: {
+                        chart: {
+                            height: 320,
+                        },
+                        legend: {
+                            position: 'top',
+                            offsetY: 0,
+                        }
+                    }
+                }]
+            };
+
+            // Créer et rendre le graphique
+            var chart = new ApexCharts(document.querySelector("#satisfaction-chart"), options);
+            chart.render();
+            console.log('Graphique rendu avec succès.');
+        } catch (error) {
+            console.error('Une erreur est survenue lors du rendu du graphique :', error);
+        }
+    });
+</script>
+<!--Analyse de Fréquentation Hebdomadaire-->
+<script>
+    // Fonction pour charger les données de fréquentation hebdomadaire
+function loadWeeklyVisitsData() {
+  fetch('/api/weekly-visits/')
+    .then(response => response.json())
+    .then(data => {
+      const columnChartOptions = {
+        series: [{
+          data: data.data, // Utiliser les données de l'API
+          name: 'Clients',
+        }],
+        chart: {
+          type: 'bar',
+          background: 'transparent',
+          height: 350,
+          toolbar: {
+            show: false,
+          },
+        },
+        colors: ['#1C1C1C', '#333333', '#4F4F4F', '#696969', '#808080', '#A0A0A0', '#C0C0C0'],
+        plotOptions: {
+          bar: {
+            distributed: true,
+            borderRadius: 4,
+            horizontal: false,
+            columnWidth: '40%',
+          },
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        fill: {
+          opacity: 1,
+        },
+        grid: {
+          borderColor: '#55596e',
+          yaxis: {
+            lines: {
+              show: true,
+            },
+          },
+          xaxis: {
+            lines: {
+              show: true,
+            },
+          },
+        },
+        legend: {
+          labels: {
+            colors: '#000',
+          },
+          show: true,
+          position: 'top',
+        },
+        stroke: {
+          colors: ['transparent'],
+          show: true,
+          width: 2,
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          theme: 'dark',
+        },
+        xaxis: {
+          categories: data.labels, // Utiliser les labels de l'API
+          title: {
+            style: {
+              color: '#000',
+            },
+          },
+          axisBorder: {
+            show: true,
+            color: '#000',
+          },
+          axisTicks: {
+            show: true,
+            color: '#000',
+          },
+          labels: {
+            style: {
+              colors: '#000',
+            },
+          },
+        },
+        yaxis: {
+          title: {
+            text: 'Nombre de clients',
+            style: {
+              color: '#000',
+            },
+          },
+          axisBorder: {
+            color: '#000',
+            show: true,
+          },
+          axisTicks: {
+            color: '#000',
+            show: true,
+          },
+          labels: {
+            style: {
+              colors: '#000',
+            },
+          },
+        },
+      };
+
+      const columnChart = new ApexCharts(
+        document.querySelector('#bar-chart'),
+        columnChartOptions
+      );
+      columnChart.render();
+    });
+}
+
+// Charger les données lors du chargement de la page
+document.addEventListener('DOMContentLoaded', loadWeeklyVisitsData);
+
+
+</script>
+<!--Etude des depenses mensuelles-->
+<script>
+// Charger les données JSON des dépenses depuis le contexte Django
+    const depenseData = {{ depense_data|safe }};
+    const labelo = {{ labelo|safe }};
+
+    // Préparer les données pour le graphique des dépenses mensuelles
+    const depenseSeries = [{
+        name: 'Dépenses',
+        data: depenseData.map(value => Number(value))
+    }];
+
+    // Options de configuration du graphique des dépenses
+    const depenseChartOptions = {
+        series: depenseSeries, // Séries de données
+        chart: {
+            type: 'line', // Type de graphique (ligne pour les dépenses)
+            background: 'transparent', // Fond transparent
+            height: 350, // Hauteur du graphique
+            stacked: false, // Ne pas empiler les séries
+            toolbar: { show: false }, // Ne pas afficher la barre d'outils
+        },
+        colors: ['#C0C0C0'], // Couleur de la série unique
+        labels: labelo, // Labels des mois et années
+        dataLabels: { enabled: false }, // Désactiver les labels de données
+        grid: {
+            borderColor: '#55596e', // Couleur de la bordure de la grille
+            yaxis: { lines: { show: true } }, // Afficher les lignes de l'axe Y
+            xaxis: { lines: { show: true } }  // Afficher les lignes de l'axe X
+        },
+        legend: {
+            show: true, // Afficher la légende
+            position: 'top', // Position de la légende
+            labels: { colors: '#000' } // Couleur des labels de légende
+        },
+
+        stroke: { curve: 'smooth' }, // Courbe lisse pour les lignes
+        xaxis: {
+            categories: labelo, // Utiliser la liste complète des mois avec années
+            axisBorder: { color: '#55596e', show: true }, // Bordure de l'axe X
+            axisTicks: { color: '#55596e', show: true }, // Marqueurs de l'axe X
+            labels: { style: { colors: '#000' } }, // Couleur des labels de l'axe X
+        },
+        yaxis: {
+            title: { text: "Dépenses mensuelles", style: { color: '#000' } }, // Titre de l'axe Y
+            labels: {
+                style: { colors: '#000' },
+                formatter: function (val) {
+                    return val.toLocaleString() + ' FCFA';  // Ajouter 'FCFA' aux labels de l'axe Y
+                }
+            }
+        },
+        tooltip: {
+            shared: true, // Tooltip partagé
+            intersect: false, // Ne pas intercepter les points de données
+            theme: 'dark', // Thème sombre du tooltip
+            y: {
+                formatter: function (val) {
+                    return val.toLocaleString() + ' FCFA';  // Ajouter 'FCFA' à la valeur
+                }
+            }
+        },
+    };
+
+    // Créer et afficher le graphique des dépenses mensuelles
+    const depenseChart = new ApexCharts(
+        document.querySelector('#depense-chart'), // Sélecteur du conteneur du graphique
+        depenseChartOptions // Options de configuration du graphique
+    );
+    depenseChart.render(); // Rendre le graphique dans le conteneur
+  </script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const revenues = [
+            {{ revenue_data.0|default:0 }}, // Janvier
+            {{ revenue_data.1|default:0 }},
+            {{ revenue_data.2|default:0 }},
+            {{ revenue_data.3|default:0 }},
+            {{ revenue_data.4|default:0 }},
+            {{ revenue_data.5|default:0 }},
+            {{ revenue_data.6|default:0 }},
+            {{ revenue_data.7|default:0 }},
+            {{ revenue_data.8|default:0 }},
+            {{ revenue_data.9|default:0 }},
+            {{ revenue_data.10|default:0 }},
+            {{ revenue_data.11|default:0 }},
+        ];
+
+
+        // Boucle pour colorer les autres mois dans la ligne des C.A. (février à décembre)
+        for (let i = 0; i < revenues.length; i++) {
+            const currentCell = document.querySelector(`tbody tr:nth-child(1) td:nth-child(${i + 2})`);
+            const previousRevenue = revenues[i - 1];
+
+            if (revenues[i] > previousRevenue) {
+                currentCell.style.color = "green"; // C.A. supérieur ou égal au mois précédent
+            } else if (revenues[i] < previousRevenue) {
+                currentCell.style.color = "red";
+           } else {
+                currentCell.style.color = "red"; // C.A. inférieur au mois précédent
+            }
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const depenses = [
+            {{ depense_datas.0|default:0 }}, // Janvier
+            {{ depense_datas.1|default:0 }},
+            {{ depense_datas.2|default:0 }},
+            {{ depense_datas.3|default:0 }},
+            {{ depense_datas.4|default:0 }},
+            {{ depense_datas.5|default:0 }},
+            {{ depense_datas.6|default:0 }},
+            {{ depense_datas.7|default:0 }},
+            {{ depense_datas.8|default:0 }},
+            {{ depense_datas.9|default:0 }},
+            {{ depense_datas.10|default:0 }},
+            {{ depense_datas.11|default:0 }},
+        ];
+
+
+        // Boucle pour colorer les autres mois dans la ligne des dépenses (février à décembre)
+        for (let i = 0; i < depenses.length; i++) {
+            const currentCell = document.querySelector(`tbody tr:nth-child(2) td:nth-child(${i + 2})`);
+            const previousDepense = depenses[i - 1];
+
+            if (depenses[i] < previousDepense) {
+                currentCell.style.color = "green"; // Dépense inférieure au mois précédent
+            } else if (depenses[i] > previousDepense) {
+                currentCell.style.color = "red"; // Dépense supérieure au mois précédent
+            } else {
+                currentCell.style.color = "green"; // Dépense égale au mois précédent
+            }
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+    $('#dashboard-table').DataTable({
+    "paging": false,
+    "searching": false,
+    "ordering": false,
+    "info": false,
+    "autoWidth": true,
+    "responsive": true,
+    "lengthChange": false,  // Désactiver le sélecteur "Show entries"
+});
+
+});
+
+
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Fonction pour animer les titres
+    function animateTitle(id, title) {
+      const element = document.getElementById(id);
+      const words = title.split(" ");
+      let wordIndex = 0;
+
+      function showNextWord() {
+        if (wordIndex < words.length) {
+          element.textContent = words[wordIndex];
+          wordIndex++;
+          setTimeout(showNextWord, 2000); // Change de mot toutes les 500ms
+        } else {
+          // Redémarre l'animation
+          element.textContent = '';
+          wordIndex = 0;
+          setTimeout(showNextWord, 0);
+        }
+      }
+
+      showNextWord();
+    }
+
+    // Animation pour chaque titre
+    animateTitle('title-1', 'CHARGE MENSUEL MOYEN');
+    animateTitle('title-2', 'NOMBRE DE CLIENTS MENSUELS MOYEN');
+    animateTitle('title-3', 'DEPENSE MOYEN PAR CLIENT');
+    animateTitle('title-4', 'CHIFFRE D\'AFFAIRES MOYEN');
+  });
+</script>
+
+{% endblock %}

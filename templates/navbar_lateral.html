@@ -1,0 +1,91 @@
+{% load static %}
+
+<div class="sidebare open">
+  <div class="logo-details">
+    <i class="bx bx-menu" id="btn" style="margin-right:10px; visibility:hidden"></i>
+  </div>
+  <ul class="nav-list">
+    <hr style="border: none; height: 5px; background-color: white; margin: 20px 0;">
+    <li>
+      <a href="{% url 'home' %}">
+        <i class="bx bx-home"></i>
+      </a>
+      <span class="tooltip">Accueil</span>
+    </li>
+    <li>
+      <a href="{% url 'add-invoice' %}">
+        <i class="bx bx-file"></i>
+      </a>
+      <span class="tooltip">Création facture</span>
+    </li>
+    {% if request.user.is_superuser %}
+    <li class="dropdown">
+      <a href="#">
+        <i class="bx bx-book"></i>
+
+      </a>
+      <ul class="dropdown-content" style="border-left:2px solid white">
+        <li><a href="{% url 'receipt' %}">Caisse</a></li>
+        <li><a href="{% url 'journal' %}">Journal</a></li>
+        <li><a href="{% url 'depense' %}">Charge</a></li>
+        <li><a href="{% url 'bilan' %}">Bilan</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="{% url 'dashboard' %}">
+        <i class="bx bx-pie-chart-alt-2"></i>
+      </a>
+      <span class="tooltip">Tableau de bord</span>
+    </li>
+
+    <li class="dropdown">
+      <a href="#">
+        <i class="bx bx-cog"></i>
+
+      </a>
+      <ul class="dropdown-content" style="border-left:2px solid white">
+
+        <li><a href="{% url 'parametre_page' 'utilisateur' %}">Paramètres Utilisateur</a></li>
+        <li><a href="{% url 'parametre_page' 'settings' %}">Paramètres Système</a></li>
+        <li><a href="{% url 'parametre_page' 'service' %}">Ajout/Supp Service</a></li>
+
+
+        <li><a href="{% url 'parametre_page' 'caisse' %}">Paramètres Caisse</a></li>
+
+        <li><a href="{% url 'parametre_page' 'charge' %}">Paramètres Charge</a></li>
+
+      </ul>
+    </li>
+    {% endif %}
+
+    {% if not request.user.is_superuser %}
+    <li>
+      <a href="{% url 'receipt' %}">
+        <i class="bx bx-money"></i>
+      </a>
+      <span class="tooltip">Caisse</span>
+    </li>
+    <li>
+      <a href="{% url 'journal' %}">
+        <i class="bx bx-book"></i>
+      </a>
+      <span class="tooltip">Journal</span>
+    </li>
+    <li>
+      <a href="{% url 'parametre_page' 'caisse' %}">
+        <i class="bx bx-cog"></i>
+      </a>
+      <span class="tooltip">Paramètres Caisse</span>
+    </li>
+    {% endif %}
+
+
+    <li class="logout">
+      <hr style="border: none; height: 5px; background-color: white; margin: 20px 0;">
+      <a href="{% url 'logout' %}">
+        <i class="bx bx-log-out" id="log_out"></i>
+      </a>
+      <span class="tooltip">Déconnexion</span>
+    </li>
+  </ul>
+</div>

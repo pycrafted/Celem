@@ -1,0 +1,71 @@
+# Environnements virtuels Python
+venv/
+env/
+*.venv
+
+# Fichiers Python compilés
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Bases de données locales
+db.sqlite3
+*.db
+
+# Fichiers de configuration sensibles
+*.env
+.env.*
+secrets.json
+
+# Fichiers temporaires et logs
+*.log
+*.pid
+*.seed
+*.bak
+
+# Fichiers générés par Django
+migrations/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers de développement local
+*.DS_Store  # macOS
+Thumbs.db   # Windows
+*.swp       # Vim
+
+# Dossiers statiques et médias collectés
+staticfiles/
+media/
+
+# Fichiers de dépendances installées localement
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+# Fichiers spécifiques à l'éditeur
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Fichiers de tests ou de couverture
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Fichiers de pipeline CI/CD locaux
+*.retry

@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Afficher les alertes -->
+    {% for message in messages %}
+        {% if 'nouvelle_charge' in message.tags %}
+            <div class="alert alert-info" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Formulaire de filtre de mois -->
+    <div class="d-flex justify-content-center mb-3">
+        <form method="GET" action="{% url 'depense' %}" class="form-inline" id="month-filter-form">
+            <div class="form-group">
+                <input type="month" id="month" name="month" class="form-control" value="{{ month_filter }}">
+            </div>
+        </form>
+    </div>
+
+    <!-- Section du bouton edit et de la barre de recherche -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <!-- Champ de recherche aligné à gauche -->
+        <input type="text" id="search" name="search" class="form-control" placeholder="Rechercher..." style="width:191px;" value="{{ search_query }}">
+
+        <!-- Bouton aligné à droite -->
+        <button type="button" class="btn btn-link p-0 m-0" data-toggle="modal" data-target="#depenseModal" title="Ajouter une nouvelle charge">
+            <span class="material-icons-outlined">edit</span>
+        </button>
+    </div>
+
+    <table class="table table-bordered table-hover custom-table" id="depense-table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" style="border-left: 1px solid black !important; border-right: 1px solid white !important">DATE</th>
+                <th scope="col" style="border-right: 1px solid white !important">TYPE</th>
+                <th scope="col" style="border-right: 1px solid white !important">INTITULÉ</th>
+                <th class="d-none d-md-table-cell" scope="col" style="border-right: 1px solid white !important">UNITÉ</th>
+                <th class="d-none d-md-table-cell" scope="col" style="border-right: 1px solid white !important">QUANTITÉ</th>
+                <th scope="col" style="border-right: 1px solid black !important">TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for depense in depenses %}
+                <tr>
+                    <td>{{ depense.date_depense|date:"d/m/Y" }}</td>
+                    <td>{{ depense.get_type_display }}</td>
+                    <td>{{ depense.intitule }}</td>
+                    <td class="d-none d-md-table-cell">{{ depense.montant }} FCFA</td>
+                    <td class="d-none d-md-table-cell">{{ depense.quantite }}</td>
+                    <td class="depense-total">{{ depense.montant|multiply:depense.quantite }} FCFA</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Table charge mensuelle -->
+    <div class="row">
+    <div class="text-left mt-2" style="margin-left:7px">
+        <table class="table table-bordered custom-table" style="width: 380px;">
+            <tbody>
+                <tr style="font-weight: bold;">
+                    <td class="text-center " style="background-color: #E7E6E6;">CHARGE MENSUELLE</td>
+                    <td class="text-center" id="total-amount"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+        </div>
+</div>
+
+<!-- Modal Bootstrap pour ajouter une dépense -->
+<div class="modal fade" id="depenseModal" tabindex="-1" role="dialog" aria-labelledby="depenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depenseModalLabel">Ajouter une nouvelle dépense</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="depenseForm" method="POST" action="{% url 'depense' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    {{ form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br><br>
+<!-- JavaScript pour soumettre le formulaire lorsque le mois change et pour la recherche dynamique -->
+<script>
+    // Soumettre le formulaire de filtrage par mois
+    document.getElementById('month').addEventListener('change', function() {
+        document.getElementById('month-filter-form').submit();
+    });
+
+    // Fonction pour calculer le total des dépenses visibles
+    function calculateTotal() {
+    let total = 0;
+    // Sélectionner toutes les lignes visibles et additionner les totaux des dépenses
+    document.querySelectorAll('#depense-table tbody tr').forEach(function(row) {
+        if (row.style.display !== 'none') {
+            let montantCell = row.querySelector('.depense-total');
+            if (montantCell) {
+                // Remplacer les virgules et points incorrects pour le bon format de nombre
+                let montant = parseFloat(montantCell.textContent.replace(/[^0-9,.-]+/g, "").replace(',', '.')) || 0;
+                total += montant;
+            }
+        }
+    });
+    document.getElementById('total-amount').textContent = total.toFixed(0) + ' FCFA';
+}
+
+
+    // Recherche dynamique dans le tableau des dépenses et recalcul du total
+    document.getElementById('search').addEventListener('input', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#depense-table tbody tr');
+
+        rows.forEach(row => {
+            let type = row.cells[1].textContent.toLowerCase();
+            let intitule = row.cells[2].textContent.toLowerCase();
+            let date = row.cells[0].textContent.toLowerCase();
+
+            if (type.includes(filter) || intitule.includes(filter) || date.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Recalculer le total après le filtrage
+        calculateTotal();
+    });
+
+    // Calcul initial du total lors du chargement de la page
+    document.addEventListener("DOMContentLoaded", function() {
+        calculateTotal();
+
+        // Sélectionne tous les éléments d'alerte
+        var alerts = document.querySelectorAll('.alert');
+
+        // Parcourt chaque alerte
+        alerts.forEach(function(alert) {
+            // Définit un délai pour cacher l'alerte après 3 secondes
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+
+                // Supprime complètement l'élément du DOM après la transition
+                setTimeout(function() {
+                    alert.remove();
+                }, 500); // Correspond au temps de la transition
+            }, 2000); // 2 secondes d'affichage
+        });
+    });
+
+    $(document).ready(function() {
+    $('#depense-table').DataTable({
+    "paging": true,
+    "searching": false,
+    "ordering": [[0, "desc"]],
+    "info": false,
+    "autoWidth": true,
+    "responsive": true,
+    "lengthChange": false,  // Désactiver le sélecteur "Show entries"
+    "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/French.json"  // Optionnel : pour la traduction française
+    }
+});
+
+});
+
+</script>
+
+{% endblock %}
