@@ -23,7 +23,6 @@ from django.urls import reverse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 import imgkit
-import pywhatkit
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
@@ -899,6 +898,7 @@ class SendInvoiceView(View):
                 logging.info(f"Chemin de l'image à envoyer : {output_image_path}")
                 caption = f"Veuillez recevoir ci_joint votre facture, {invoice.customer}"
                 # Ajout d'un délai avant l'envoi pour s'assurer que WhatsApp Web est prêt
+                import pywhatkit
                 pywhatkit.sendwhats_image(telephone, output_image_path, caption)  # délai de 10 secondes
 
                 return redirect('home')
